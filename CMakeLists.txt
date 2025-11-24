@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 COMPONENTS Quick Widgets Core Svg SvgWidgets REQUIRED)
+find_package(Qt6 COMPONENTS Quick Widgets Core Svg SvgWidgets Multimedia MultimediaWidgets REQUIRED)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
