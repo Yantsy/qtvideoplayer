@@ -20,10 +20,12 @@ private:
   QPushButton *play = nullptr, *pause = nullptr, *open = nullptr;
   QSlider *slider = nullptr;
   QString *path = nullptr;
+  QFileDialog *dialog = nullptr;
 
   // ui参数表
   int ww = 800, wh = 600;
   int bw = 80, bh = 30;
 
 private slots:
+  void openfile();
 };

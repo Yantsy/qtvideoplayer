@@ -16,11 +16,18 @@ home::home(QWidget *parent) : QWidget(parent) {
                       videowidget->geometry().width(), 10);
   play = new QPushButton("Play", this);
   play->move(100, wh - 30);
+  connect(play, &QPushButton::clicked, videoplayer, &QMediaPlayer::play);
   pause = new QPushButton("Pause", this);
   pause->move(200, wh - 30);
+  connect(pause, &QPushButton::clicked, videoplayer, &QMediaPlayer::pause);
   open = new QPushButton("Open", this);
   open->move(300, wh - 30);
+  connect(open, &QPushButton::clicked, this, &home::openfile);
+}
 
+home::~home() {}
+
+void home::openfile() {
   path = new QString(QFileDialog::getOpenFileName(this, "open file from ..."));
 
   if (!path->isEmpty()) {
@@ -28,5 +35,3 @@ home::home(QWidget *parent) : QWidget(parent) {
     videoplayer->play();
   }
 }
-
-home::~home() {}
