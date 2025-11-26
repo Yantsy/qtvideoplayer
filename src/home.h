@@ -18,8 +18,9 @@ public:
 private:
   QMediaPlayer *videoplayer = nullptr;
   QVideoWidget *videowidget = nullptr;
-  QPushButton *play = nullptr, *pause = nullptr, *open = nullptr;
-  QSlider *slider = nullptr;
+  QPushButton *play = nullptr, *pause = nullptr, *open = nullptr,
+              *audio = nullptr;
+  QSlider *slider = nullptr, *volume = nullptr;
   QString *path = nullptr;
   QAudioOutput *audiooutput = nullptr;
 
@@ -29,5 +30,4 @@ private:
 
 private slots:
   void openfile();
-  void slidermove();
 };
