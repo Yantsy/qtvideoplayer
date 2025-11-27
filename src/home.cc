@@ -7,8 +7,9 @@ home::home(QWidget *parent) : QWidget(parent) {
   // 添加组件
   videoplayer = new QMediaPlayer(this);
   videowidget = new QVideoWidget(this);
+  // videowidget->setWindowFlags(Qt::);
   audiooutput = new QAudioOutput(this);
-  videowidget->setGeometry(20, 10, ww - 40, wh - 60);
+  videowidget->setGeometry(20, 10, 800, 600);
   videoplayer->setVideoOutput(videowidget);
   videoplayer->setAudioOutput(audiooutput);
   slider = new QSlider(Qt::Horizontal, this);
@@ -17,12 +18,18 @@ home::home(QWidget *parent) : QWidget(parent) {
                           videowidget->geometry().height(),
                       videowidget->geometry().width() - 80, 10);
   play = new QPushButton("Play", this);
-  play->move(10, wh - 30);
+  play->move(10, videowidget->geometry().y() +
+                     videowidget->geometry().height() + 50);
   pause = new QPushButton("Pause", this);
-  pause->move(110, wh - 30);
+  pause->move(110, videowidget->geometry().y() +
+                       videowidget->geometry().height() + 50);
   open = new QPushButton("Open", this);
-  open->move(210, wh - 30);
-  audio = new QPushButton("-_-", this);
+  open->move(210, videowidget->geometry().y() +
+                      videowidget->geometry().height() + 50);
+  fullscreen = new QPushButton("[--]", this);
+  fullscreen->move(310, videowidget->geometry().y() +
+                            videowidget->geometry().height() + 50);
+  audio = new QPushButton("V", this);
   audio->setFixedSize(30, 20);
   audio->move(videowidget->geometry().width() - 60, slider->geometry().y());
   volume = new QSlider(Qt::Horizontal, this);
@@ -47,6 +54,31 @@ home::home(QWidget *parent) : QWidget(parent) {
   connect(play, &QPushButton::clicked, videoplayer, &QMediaPlayer::play);
   connect(pause, &QPushButton::clicked, videoplayer, &QMediaPlayer::pause);
   connect(open, &QPushButton::clicked, this, &home::openfile);
+  fulscr_shortcut =
+      new QShortcut(QKeySequence("F"), fullscreen, SIGNAL(clicked()));
+  fulscr_shortcut_x = new QShortcut(QKeySequence("ESC"), videowidget);
+  connect(fullscreen, &QPushButton::clicked, this, [=]() {
+    if (!videowidget->isFullScreen()) {
+      videowidget->setFullScreen(true);
+      // videowidget->show();
+      this->hide();
+    } else {
+      videowidget->setFullScreen(false);
+      videowidget->setGeometry(20, 10, 800, 600);
+      this->show();
+    }
+  });
+  connect(fulscr_shortcut_x, &QShortcut::activated, this, [=]() {
+    if (!videowidget->isFullScreen()) {
+      videowidget->setFullScreen(true);
+      // videowidget->show();
+      this->hide();
+    } else {
+      videowidget->setFullScreen(false);
+      videowidget->setGeometry(20, 10, 800, 600);
+      this->show();
+    }
+  });
 }
 home::~home() {}
 

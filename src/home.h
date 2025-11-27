@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QMediaPlayer>
 #include <QPushButton>
+#include <QShortcut>
 #include <QSlider>
 #include <QVideoWidget>
 #include <QtWidgets/QApplication>
@@ -19,13 +20,14 @@ private:
   QMediaPlayer *videoplayer = nullptr;
   QVideoWidget *videowidget = nullptr;
   QPushButton *play = nullptr, *pause = nullptr, *open = nullptr,
-              *audio = nullptr;
+              *audio = nullptr, *fullscreen = nullptr;
   QSlider *slider = nullptr, *volume = nullptr;
   QString *path = nullptr;
   QAudioOutput *audiooutput = nullptr;
+  QShortcut *fulscr_shortcut = nullptr, *fulscr_shortcut_x = nullptr;
 
   // ui参数表
-  int ww = 800, wh = 600;
+  int ww = 1600, wh = 900;
   int bw = 80, bh = 30;
 
 private slots:
