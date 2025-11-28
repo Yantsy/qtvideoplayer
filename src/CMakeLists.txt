@@ -2,6 +2,7 @@ qt_add_executable(${PROJECT_NAME}
     ../src/home.cc
     ../src/home.h
     ../src/main.cc
+
 )
 
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})

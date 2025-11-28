@@ -1,4 +1,9 @@
 <RCC>
     <qresource prefix="/">
+    <file>resources/playpause.png</file>
+    <file>resources/addfile.png</file>
+    <file>resources/setting.png</file>
+    <file>resources/volume.png</file>
+    <file>resources/fullscreen.png</file>
     </qresource>
 </RCC>

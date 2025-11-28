@@ -25,6 +25,8 @@ private:
   QString *path = nullptr;
   QAudioOutput *audiooutput = nullptr;
   QShortcut *fulscr_shortcut = nullptr, *fulscr_shortcut_x = nullptr;
+  QPushButton *buttonset(QPushButton *button, std::string iconpath, int x,
+                         int y, int w, int h);
 
   // ui参数表
   int ww = 1600, wh = 900;

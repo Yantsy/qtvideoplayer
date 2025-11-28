@@ -4,43 +4,48 @@ home::home(QWidget *parent) : QWidget(parent) {
   this->setWindowTitle("Qt Video Player");
   this->setFixedSize(ww, wh);
 
-  // 添加组件
+  // add mediapalyer and videowidget
   videoplayer = new QMediaPlayer(this);
   videowidget = new QVideoWidget(this);
-  // videowidget->setWindowFlags(Qt::);
   audiooutput = new QAudioOutput(this);
   videowidget->setGeometry(20, 10, 800, 600);
   videoplayer->setVideoOutput(videowidget);
   videoplayer->setAudioOutput(audiooutput);
+  // add buttons and sliders
   slider = new QSlider(Qt::Horizontal, this);
   slider->setGeometry(videowidget->geometry().x(),
                       videowidget->geometry().y() +
                           videowidget->geometry().height(),
                       videowidget->geometry().width() - 80, 10);
-  play = new QPushButton("Play", this);
-  play->move(10, videowidget->geometry().y() +
-                     videowidget->geometry().height() + 50);
-  pause = new QPushButton("Pause", this);
-  pause->move(110, videowidget->geometry().y() +
-                       videowidget->geometry().height() + 50);
-  open = new QPushButton("Open", this);
-  open->move(210, videowidget->geometry().y() +
-                      videowidget->geometry().height() + 50);
-  fullscreen = new QPushButton("[--]", this);
-  fullscreen->move(310, videowidget->geometry().y() +
-                            videowidget->geometry().height() + 50);
-  audio = new QPushButton("V", this);
-  audio->setFixedSize(30, 20);
-  audio->move(videowidget->geometry().width() - 60, slider->geometry().y());
+
+  play = buttonset(play, "playpause", 10,
+                   videowidget->geometry().y() +
+                       videowidget->geometry().height() + 50,
+                   30, 20);
+
+  open = buttonset(open, "addfile", 210,
+                   videowidget->geometry().y() +
+                       videowidget->geometry().height() + 50,
+                   30, 20);
+
+  fullscreen = buttonset(fullscreen, "fullscreen", 310,
+                         videowidget->geometry().y() +
+                             videowidget->geometry().height() + 50,
+                         30, 20);
+
+  audio = buttonset(audio, "volume", videowidget->geometry().width() - 60,
+                    slider->geometry().y(), 30, 20);
+
   volume = new QSlider(Qt::Horizontal, this);
   volume->setGeometry(audio->geometry().x() + 30, audio->geometry().y(), 50,
                       10);
   volume->setRange(0, 100);
   volume->setValue(50);
-  // 连接信号与槽
 
+  // signals and slots
+  // clicked events
   connect(volume, &QSlider::valueChanged, this, [=](int value) {
-    qreal dB = -60.0 + (value / 100.0) * 60.0; // 将线性值转换为分贝值
+    qreal dB = -60.0 + (value / 100.0) * 60.0;
     qreal linearVolume = std::pow(10.0, dB / 20.0);
     audiooutput->setVolume(linearVolume);
   });
@@ -51,9 +56,17 @@ home::home(QWidget *parent) : QWidget(parent) {
           &QSlider::setValue);
   connect(slider, &QSlider::sliderMoved, videoplayer,
           &QMediaPlayer::setPosition);
-  connect(play, &QPushButton::clicked, videoplayer, &QMediaPlayer::play);
+  connect(play, &QPushButton::clicked, this, [=]() {
+    if (videoplayer->isPlaying() == false) {
+      videoplayer->play();
+    } else {
+      videoplayer->pause();
+    }
+  });
   connect(pause, &QPushButton::clicked, videoplayer, &QMediaPlayer::pause);
   connect(open, &QPushButton::clicked, this, &home::openfile);
+
+  // shortcut events
   fulscr_shortcut =
       new QShortcut(QKeySequence("F"), fullscreen, SIGNAL(clicked()));
   fulscr_shortcut_x = new QShortcut(QKeySequence("ESC"), videowidget);
@@ -80,6 +93,7 @@ home::home(QWidget *parent) : QWidget(parent) {
     }
   });
 }
+
 home::~home() {}
 
 void home::openfile() {
@@ -89,4 +103,15 @@ void home::openfile() {
     videoplayer->setSource(QUrl::fromLocalFile(*path));
     videoplayer->play();
   }
+}
+
+QPushButton *home::buttonset(QPushButton *button, std::string iconpath, int x,
+                             int y, int w, int h) {
+  button = new QPushButton(this);
+  button->setIcon(QIcon(QString(":/resources/") +
+                        QString::fromStdString(iconpath) + QString(".png")));
+  button->setIconSize(QSize(w, h));
+  button->setGeometry(x, y, w + 2, h + 2);
+  button->setFlat(true);
+  return button;
 }
