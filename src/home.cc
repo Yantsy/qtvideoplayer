@@ -2,13 +2,21 @@
 
 home::home(QWidget *parent) : QWidget(parent) {
   this->setWindowTitle("Qt Video Player");
-  this->setFixedSize(ww, wh);
+  this->setMinimumSize(ww, wh);
+  this->setWindowFlags(Qt::WindowMaximizeButtonHint |
+                       Qt::WindowCloseButtonHint |
+                       Qt::WindowMinimizeButtonHint);
+  // load iconfont
+  // id = QFontDatabase::addApplicationFont(
+  // ":/resources/MaterialIconsRound-Regular.otf");
+  // family = new QString(QFontDatabase::applicationFontFamilies(id).at(0));
+  // iconfont = new QFont(*family, 20);
 
   // add mediapalyer and videowidget
   videoplayer = new QMediaPlayer(this);
   videowidget = new QVideoWidget(this);
   audiooutput = new QAudioOutput(this);
-  videowidget->setGeometry(20, 10, 800, 600);
+  videowidget->setGeometry(20, 10, 897 + (1 / 3), 475);
   videoplayer->setVideoOutput(videowidget);
   videoplayer->setAudioOutput(audiooutput);
   // add buttons and sliders
@@ -63,7 +71,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       videoplayer->pause();
     }
   });
-  connect(pause, &QPushButton::clicked, videoplayer, &QMediaPlayer::pause);
+
   connect(open, &QPushButton::clicked, this, &home::openfile);
 
   // shortcut events
@@ -77,7 +85,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       this->hide();
     } else {
       videowidget->setFullScreen(false);
-      videowidget->setGeometry(20, 10, 800, 600);
+      videowidget->setGeometry(20, 10, 897 + (1 / 3), 475);
       this->show();
     }
   });
@@ -88,7 +96,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       this->hide();
     } else {
       videowidget->setFullScreen(false);
-      videowidget->setGeometry(20, 10, 800, 600);
+      videowidget->setGeometry(20, 10, 897 + (1 / 3), 475);
       this->show();
     }
   });
@@ -104,6 +112,8 @@ void home::openfile() {
     videoplayer->play();
   }
 }
+
+// void home::paintEvent(QPaintEvent *event){}
 
 QPushButton *home::buttonset(QPushButton *button, std::string iconpath, int x,
                              int y, int w, int h) {

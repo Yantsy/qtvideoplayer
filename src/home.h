@@ -2,6 +2,8 @@
 
 #include <QAudioOutput>
 #include <QFileDialog>
+#include <QFont>
+#include <QFontDatabase>
 #include <QMediaPlayer>
 #include <QPushButton>
 #include <QShortcut>
@@ -29,9 +31,16 @@ private:
                          int y, int w, int h);
 
   // ui参数表
-  int ww = 1600, wh = 900;
+  int ww = 1307, wh = 644;
   int bw = 80, bh = 30;
+
+  int id = 0;
+  QString *family = nullptr;
+  QFont *iconfont = nullptr;
 
 private slots:
   void openfile();
+
+protected:
+  // void paintEvent(QPaintEvent *event) override;
 };
