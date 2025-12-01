@@ -13,12 +13,17 @@ home::home(QWidget *parent) : QWidget(parent) {
   // iconfont = new QFont(*family, 20);
 
   // add mediapalyer and videowidget
+  videowid = new videoget(this);
   videoplayer = new QMediaPlayer(this);
   videowidget = new QVideoWidget(this);
   audiooutput = new QAudioOutput(this);
-  videowidget->setGeometry(20, 10, 897 + (1 / 3), 475);
+  videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
+  videowid->setGeometry(17, 9, 897 + (1 / 3) - 20 + 26, 477);
+  videowidget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
   videoplayer->setVideoOutput(videowidget);
   videoplayer->setAudioOutput(audiooutput);
+
   // add buttons and sliders
   slider = new QSlider(Qt::Horizontal, this);
   slider->setGeometry(videowidget->geometry().x(),
@@ -40,6 +45,11 @@ home::home(QWidget *parent) : QWidget(parent) {
                          videowidget->geometry().y() +
                              videowidget->geometry().height() + 50,
                          30, 20);
+
+  setting = new QPushButton("Settings", videowidget);
+  setting->move(20, 20);
+  setting->raise();
+  setting->show();
 
   audio = buttonset(audio, "volume", videowidget->geometry().width() - 60,
                     slider->geometry().y(), 30, 20);
@@ -113,7 +123,12 @@ void home::openfile() {
   }
 }
 
-// void home::paintEvent(QPaintEvent *event){}
+void home::paintEvent(QPaintEvent *event) {
+  homepainter = new QPainter(this);
+  homepainter->setBrush(QColor(41, 134, 204));
+  homepainter->drawRect(this->rect());
+  homepainter->end();
+}
 
 QPushButton *home::buttonset(QPushButton *button, std::string iconpath, int x,
                              int y, int w, int h) {
