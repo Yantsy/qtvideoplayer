@@ -6,11 +6,6 @@ home::home(QWidget *parent) : QWidget(parent) {
   this->setWindowFlags(Qt::WindowMaximizeButtonHint |
                        Qt::WindowCloseButtonHint |
                        Qt::WindowMinimizeButtonHint);
-  // load iconfont
-  // id = QFontDatabase::addApplicationFont(
-  // ":/resources/MaterialIconsRound-Regular.otf");
-  // family = new QString(QFontDatabase::applicationFontFamilies(id).at(0));
-  // iconfont = new QFont(*family, 20);
 
   // add mediapalyer and videowidget
   videowid = new videoget(this);
@@ -24,41 +19,59 @@ home::home(QWidget *parent) : QWidget(parent) {
   videoplayer->setVideoOutput(videowidget);
   videoplayer->setAudioOutput(audiooutput);
 
+  // the console polygon
+  console = new polygon(this);
+  console->modelpath(
+      videowid->geometry().x(),
+      15 + videowid->geometry().height() + videowid->geometry().y(),
+      videowid->geometry().width(), 104, 8, 8, QColor(243, 232, 232));
+  console->lower();
+
   // add buttons and sliders
   slider = new QSlider(Qt::Horizontal, this);
-  slider->setGeometry(videowidget->geometry().x(),
-                      videowidget->geometry().y() +
-                          videowidget->geometry().height(),
-                      videowidget->geometry().width() - 80, 10);
+  slider->setGeometry(videowid->geometry().x() + 5,
+                      console->geometry().y() + 18,
+                      console->geometry().width() - 10, 5);
 
-  play = buttonset(play, "playpause", 10,
-                   videowidget->geometry().y() +
-                       videowidget->geometry().height() + 50,
-                   30, 20);
+  play = buttonset(play, "playpause", console->geometry().x() + 7,
+                   console->geometry().y() + 40, 34, 34);
 
-  open = buttonset(open, "addfile", 210,
-                   videowidget->geometry().y() +
-                       videowidget->geometry().height() + 50,
-                   30, 20);
-
-  fullscreen = buttonset(fullscreen, "fullscreen", 310,
-                         videowidget->geometry().y() +
-                             videowidget->geometry().height() + 50,
-                         30, 20);
-
-  setting = new QPushButton("Settings", videowidget);
-  setting->move(20, 20);
-  setting->raise();
-  setting->show();
-
-  audio = buttonset(audio, "volume", videowidget->geometry().width() - 60,
-                    slider->geometry().y(), 30, 20);
+  skiplast = buttonset(skiplast, "skip_previous", console->geometry().x() + 55,
+                       console->geometry().y() + 40, 34, 34);
+  skipnext = buttonset(skipnext, "skip_next", console->geometry().x() + 103,
+                       console->geometry().y() + 40, 34, 34);
+  audio = buttonset(audio, "volume", console->geometry().x() + 151,
+                    console->geometry().y() + 40, 34, 34);
 
   volume = new QSlider(Qt::Horizontal, this);
-  volume->setGeometry(audio->geometry().x() + 30, audio->geometry().y(), 50,
-                      10);
+  volume->setGeometry(
+      audio->geometry().x() + 35,
+      audio->geometry().y() + audio->geometry().height() / 2 - 10, 50, 20);
   volume->setRange(0, 100);
   volume->setValue(50);
+
+  open = buttonset(open, "addfile",
+                   console->geometry().x() + console->geometry().width() - 284,
+                   console->geometry().y() + 40, 34, 34);
+  setting =
+      buttonset(setting, "setting",
+                console->geometry().x() + console->geometry().width() - 236,
+                console->geometry().y() + 40, 34, 34);
+  subtitle =
+      buttonset(subtitle, "subtitle",
+                console->geometry().x() + console->geometry().width() - 188,
+                console->geometry().y() + 40, 34, 34);
+  sound = buttonset(sound, "sound",
+                    console->geometry().x() + console->geometry().width() - 140,
+                    console->geometry().y() + 40, 34, 34);
+  outview =
+      buttonset(outview, "setting",
+                console->geometry().x() + console->geometry().width() - 92,
+                console->geometry().y() + 40, 34, 34);
+  fullscreen =
+      buttonset(fullscreen, "fullscreen",
+                console->geometry().x() + console->geometry().width() - 44,
+                console->geometry().y() + 40, 34, 34);
 
   // signals and slots
   // clicked events
@@ -95,7 +108,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       this->hide();
     } else {
       videowidget->setFullScreen(false);
-      videowidget->setGeometry(20, 10, 897 + (1 / 3), 475);
+      videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
       this->show();
     }
   });
@@ -106,7 +119,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       this->hide();
     } else {
       videowidget->setFullScreen(false);
-      videowidget->setGeometry(20, 10, 897 + (1 / 3), 475);
+      videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
       this->show();
     }
   });
@@ -121,12 +134,15 @@ void home::openfile() {
     videoplayer->setSource(QUrl::fromLocalFile(*path));
     videoplayer->play();
   }
+
+  this->setWindowTitle(*path);
 }
 
 void home::paintEvent(QPaintEvent *event) {
   homepainter = new QPainter(this);
-  homepainter->setBrush(QColor(41, 134, 204));
-  homepainter->drawRect(this->rect());
+  homepainter->setRenderHint(QPainter::Antialiasing);
+  // homepainter->setBrush(QColor(255, 255, 255));
+  homepainter->fillRect(this->rect(), QColor(244, 204, 204));
   homepainter->end();
 }
 

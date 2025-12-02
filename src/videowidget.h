@@ -11,8 +11,10 @@ public:
   ~videoget();
 
 private:
-  QPainter *roundmaskpainter = nullptr;
+  QPainter *roundmaskpainter = nullptr, *polypainter = nullptr;
   QPainterPath *roundmask = nullptr;
+  // void polygonset(int w, int h, int xr, int yr, QColor color);
+
 private slots:
 protected:
   void paintEvent(QPaintEvent *event) override;

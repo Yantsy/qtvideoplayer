@@ -27,3 +27,15 @@ void videoget::resizeEvent(QResizeEvent *event) {
 
   this->setMask(roundmask->toFillPolygon().toPolygon());
 }
+
+/*void videoget::polygonset(int w, int h, int xr, int yr, QColor color) {
+  QRect rect(0, 0, w, h);
+  polypainter = new QPainter(this);
+  polypainter->setRenderHint(QPainter::Antialiasing);
+
+  polypainter->setBrush(color);
+  polypainter->setPen(Qt::NoPen);
+  polypainter->drawRoundedRect(rect, xr, yr);
+
+  polypainter->end();
+}*/

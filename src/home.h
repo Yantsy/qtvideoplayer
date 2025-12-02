@@ -1,5 +1,6 @@
 #pragma once
 
+#include "polygon.h"
 #include "videowidget.h"
 #include <QAudioOutput>
 #include <QFileDialog>
@@ -22,7 +23,9 @@ public:
 private:
   QMediaPlayer *videoplayer = nullptr;
   QVideoWidget *videowidget = nullptr;
-  QPushButton *play = nullptr, *pause = nullptr, *open = nullptr,
+  QPushButton *playblock = nullptr, *play = nullptr, *pause = nullptr,
+              *open = nullptr, *outview = nullptr, *skipnext = nullptr,
+              *skiplast = nullptr, *sound = nullptr, *subtitle = nullptr,
               *audio = nullptr, *fullscreen = nullptr, *setting = nullptr;
   QSlider *slider = nullptr, *volume = nullptr;
   QString *path = nullptr;
@@ -39,6 +42,8 @@ private:
   QString *family = nullptr;
   QFont *iconfont = nullptr;
   QPainter *homepainter = nullptr;
+
+  polygon *console = nullptr;
 
 private slots:
   void openfile();

@@ -1,10 +1,18 @@
 <RCC>
     <qresource prefix="/">
-    <file>resources/playpause.png</file>
     <file>resources/addfile.png</file>
+     <file>resources/fullscreen.png</file>
+     <file>resources/outview.png</file>
+     <file>resources/pause.png</file>
+     <file>resources/play_arrow.png</file>
+     <file>resources/playpause.png</file>
     <file>resources/setting.png</file>
+    <file>resources/skip_next.png</file>
+     <file>resources/skip_previous.png</file>
+      <file>resources/sound.png</file>
+      <file>resources/subtitle.png</file>
     <file>resources/volume.png</file>
-    <file>resources/fullscreen.png</file>
+   
    <file>resources/MaterialIconsRound-Regular.otf</file>
     </qresource>
 </RCC>
