@@ -21,12 +21,27 @@ home::home(QWidget *parent) : QWidget(parent) {
 
   // the console polygon
   console = new polygon(this);
-  console->modelpath(
+  console->getpara(
       videowid->geometry().x(),
       15 + videowid->geometry().height() + videowid->geometry().y(),
       videowid->geometry().width(), 104, 8, 8, QColor(243, 232, 232));
   console->lower();
 
+  yantsyslider = new yslider(this);
+  yantsyslider->setGeometry(videowid->geometry().x() + 5,
+                            console->geometry().y() + 80,
+                            console->geometry().width() - 10, 10);
+  yantsyslider->getpara(8, 8);
+  yantsyslider->setgroovecolor(QColor(255, 255, 255));
+  yantsyslider->settracecolor(QColor(224, 102, 102));
+  yantsyslider->sethandelcolor(QColor(235, 88, 88));
+
+  connect(videoplayer, &QMediaPlayer::durationChanged, yantsyslider,
+          &yslider::setMaximum);
+  connect(videoplayer, &QMediaPlayer::positionChanged, yantsyslider,
+          &yslider::setValue);
+  // connect(slider, &QSlider::sliderMoved, videoplayer,
+  //&QMediaPlayer::setPosition);
   // add buttons and sliders
   slider = new QSlider(Qt::Horizontal, this);
   slider->setGeometry(videowid->geometry().x() + 5,

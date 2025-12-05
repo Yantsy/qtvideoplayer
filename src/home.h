@@ -2,6 +2,7 @@
 
 #include "polygon.h"
 #include "videowidget.h"
+#include "yslider.h"
 #include <QAudioOutput>
 #include <QFileDialog>
 #include <QFont>
@@ -44,6 +45,8 @@ private:
   QPainter *homepainter = nullptr;
 
   polygon *console = nullptr;
+
+  yslider *yantsyslider = nullptr;
 
 private slots:
   void openfile();

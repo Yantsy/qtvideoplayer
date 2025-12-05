@@ -6,6 +6,8 @@ qt_add_executable(${PROJECT_NAME}
     ../src/videowidget.h    
     ../src/polygon.cc
     ../src/polygon.h
+    ../src/yslider.cc
+    ../src/yslider.h
 )
 
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
