@@ -38,10 +38,23 @@ home::home(QWidget *parent) : QWidget(parent) {
 
   connect(videoplayer, &QMediaPlayer::durationChanged, yantsyslider,
           &yslider::setMaximum);
-  connect(videoplayer, &QMediaPlayer::positionChanged, yantsyslider,
-          &yslider::setValue);
-  // connect(slider, &QSlider::sliderMoved, videoplayer,
-  //&QMediaPlayer::setPosition);
+
+  connect(yantsyslider, &yslider::dragStarted, videoplayer,
+          &QMediaPlayer::pause);
+
+  connect(yantsyslider, &yslider::dragFinished, videoplayer, [=]() {
+    videoplayer->setPosition(yantsyslider->value());
+    videoplayer->play();
+  });
+
+  connect(videoplayer, &QMediaPlayer::positionChanged, this, [=](qint64 pos) {
+    if (!yantsyslider->isdragging()) {
+      yantsyslider->blockSignals(true);
+      yantsyslider->setValue(pos);
+      yantsyslider->blockSignals(false);
+    }
+  });
+
   // add buttons and sliders
   slider = new QSlider(Qt::Horizontal, this);
   slider->setGeometry(videowid->geometry().x() + 5,

@@ -1,4 +1,5 @@
 #pragma once
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <QSlider>
@@ -12,6 +13,8 @@ public:
   void setgroovecolor(QColor color);
   void settracecolor(QColor color);
   void sethandelcolor(QColor color);
+  bool isdragging();
+  // bool under_control(bool control);
 
 private:
   QColor groovecolor, tracecolor, handelcolor;
@@ -19,10 +22,15 @@ private:
                *handelpath = nullptr;
   int w = 0, h = 0, xr = 0, yr = 0, x = 0, y = 0;
   double ratio = 0;
+  bool dragging = false;
 
-private slots:
-  // void valueChanged();
+signals:
+  void dragStarted();
+  void dragFinished();
 
 protected:
   void paintEvent(QPaintEvent *event) override;
+  void mousePressEvent(QMouseEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
 };
