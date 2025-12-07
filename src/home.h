@@ -19,6 +19,7 @@ class home : public QWidget {
   Q_OBJECT
 public:
   home(QWidget *parent = nullptr);
+
   ~home();
 
 private:
@@ -46,7 +47,8 @@ private:
 
   polygon *console = nullptr;
 
-  yslider *yantsyslider = nullptr;
+  yslider *yantsyslider = nullptr, *yvolume = nullptr;
+  void volumeswicher(int value) noexcept;
 
 private slots:
   void openfile();

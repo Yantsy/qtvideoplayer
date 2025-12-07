@@ -26,16 +26,85 @@ home::home(QWidget *parent) : QWidget(parent) {
       15 + videowid->geometry().height() + videowid->geometry().y(),
       videowid->geometry().width(), 104, 8, 8, QColor(243, 232, 232));
   console->lower();
-
+  const auto buttony = console->geometry().y() + 45;
+  // add buttons and sliders
+  /*slider = new QSlider(Qt::Horizontal, this);
+  slider->setGeometry(videowid->geometry().x() + 5,
+                      console->geometry().y() + 18,
+                      console->geometry().width() - 10, 5);*/
   yantsyslider = new yslider(this);
   yantsyslider->setGeometry(videowid->geometry().x() + 5,
-                            console->geometry().y() + 80,
+                            console->geometry().y() + 18,
                             console->geometry().width() - 10, 10);
   yantsyslider->getpara(8, 8);
   yantsyslider->setgroovecolor(QColor(255, 255, 255));
-  yantsyslider->settracecolor(QColor(224, 102, 102));
+  yantsyslider->settracecolor(QColor(51, 232, 219));
   yantsyslider->sethandelcolor(QColor(235, 88, 88));
 
+  play = buttonset(play, "playpause", console->geometry().x() + 7, buttony, 34,
+                   34);
+
+  skiplast = buttonset(skiplast, "skip_previous", console->geometry().x() + 55,
+                       buttony, 34, 34);
+  skipnext = buttonset(skipnext, "skip_next", console->geometry().x() + 103,
+                       buttony, 34, 34);
+  audio = buttonset(audio, "volume", console->geometry().x() + 151, buttony, 34,
+                    34);
+
+  /*volume = new QSlider(Qt::Horizontal, this);
+  volume->setGeometry(
+      audio->geometry().x() + 35,
+      audio->geometry().y() + audio->geometry().height() / 2 - 10, 50, 20);
+  volume->setRange(0, 100);
+  volume->setValue(50);*/
+
+  yvolume = new yslider(this);
+  yvolume->setGeometry(
+      audio->geometry().x() + 35,
+      audio->geometry().y() + audio->geometry().height() / 2 - 5, 50, 10);
+  yvolume->getpara(8, 8);
+  yvolume->setgroovecolor(QColor(255, 255, 255));
+  yvolume->settracecolor(QColor(187, 168, 237));
+  yvolume->sethandelcolor(QColor(157, 215, 132));
+  yvolume->setRange(0, 100);
+  yvolume->setValue(80);
+  volumeswicher(yvolume->value());
+
+  open = buttonset(open, "addfile",
+                   console->geometry().x() + console->geometry().width() - 284,
+                   buttony, 34, 34);
+  setting =
+      buttonset(setting, "setting",
+                console->geometry().x() + console->geometry().width() - 236,
+                buttony, 34, 34);
+  subtitle =
+      buttonset(subtitle, "subtitle",
+                console->geometry().x() + console->geometry().width() - 188,
+                buttony, 34, 34);
+  sound = buttonset(sound, "sound",
+                    console->geometry().x() + console->geometry().width() - 140,
+                    buttony, 34, 34);
+  outview =
+      buttonset(outview, "setting",
+                console->geometry().x() + console->geometry().width() - 92,
+                buttony, 34, 34);
+  fullscreen =
+      buttonset(fullscreen, "fullscreen",
+                console->geometry().x() + console->geometry().width() - 44,
+                buttony, 34, 34);
+
+  // signals and slots
+  // clicked events
+  connect(yvolume, &yslider::valueChanged, this,
+          [=](int value) { volumeswicher(value); });
+  connect(yvolume, &yslider::sliderMoved, audiooutput,
+          &QAudioOutput::setVolume);
+  /*connect(videoplayer, &QMediaPlayer::durationChanged, slider,
+          &QSlider::setMaximum);
+  connect(videoplayer, &QMediaPlayer::positionChanged, slider,
+          &QSlider::setValue);
+  connect(slider, &QSlider::sliderMoved, videoplayer,
+          &QMediaPlayer::setPosition);*/
   connect(videoplayer, &QMediaPlayer::durationChanged, yantsyslider,
           &yslider::setMaximum);
 
@@ -54,67 +123,6 @@ home::home(QWidget *parent) : QWidget(parent) {
       yantsyslider->blockSignals(false);
     }
   });
-
-  // add buttons and sliders
-  slider = new QSlider(Qt::Horizontal, this);
-  slider->setGeometry(videowid->geometry().x() + 5,
-                      console->geometry().y() + 18,
-                      console->geometry().width() - 10, 5);
-
-  play = buttonset(play, "playpause", console->geometry().x() + 7,
-                   console->geometry().y() + 40, 34, 34);
-
-  skiplast = buttonset(skiplast, "skip_previous", console->geometry().x() + 55,
-                       console->geometry().y() + 40, 34, 34);
-  skipnext = buttonset(skipnext, "skip_next", console->geometry().x() + 103,
-                       console->geometry().y() + 40, 34, 34);
-  audio = buttonset(audio, "volume", console->geometry().x() + 151,
-                    console->geometry().y() + 40, 34, 34);
-
-  volume = new QSlider(Qt::Horizontal, this);
-  volume->setGeometry(
-      audio->geometry().x() + 35,
-      audio->geometry().y() + audio->geometry().height() / 2 - 10, 50, 20);
-  volume->setRange(0, 100);
-  volume->setValue(50);
-
-  open = buttonset(open, "addfile",
-                   console->geometry().x() + console->geometry().width() - 284,
-                   console->geometry().y() + 40, 34, 34);
-  setting =
-      buttonset(setting, "setting",
-                console->geometry().x() + console->geometry().width() - 236,
-                console->geometry().y() + 40, 34, 34);
-  subtitle =
-      buttonset(subtitle, "subtitle",
-                console->geometry().x() + console->geometry().width() - 188,
-                console->geometry().y() + 40, 34, 34);
-  sound = buttonset(sound, "sound",
-                    console->geometry().x() + console->geometry().width() - 140,
-                    console->geometry().y() + 40, 34, 34);
-  outview =
-      buttonset(outview, "setting",
-                console->geometry().x() + console->geometry().width() - 92,
-                console->geometry().y() + 40, 34, 34);
-  fullscreen =
-      buttonset(fullscreen, "fullscreen",
-                console->geometry().x() + console->geometry().width() - 44,
-                console->geometry().y() + 40, 34, 34);
-
-  // signals and slots
-  // clicked events
-  connect(volume, &QSlider::valueChanged, this, [=](int value) {
-    qreal dB = -60.0 + (value / 100.0) * 60.0;
-    qreal linearVolume = std::pow(10.0, dB / 20.0);
-    audiooutput->setVolume(linearVolume);
-  });
-  connect(volume, &QSlider::sliderMoved, audiooutput, &QAudioOutput::setVolume);
-  connect(videoplayer, &QMediaPlayer::durationChanged, slider,
-          &QSlider::setMaximum);
-  connect(videoplayer, &QMediaPlayer::positionChanged, slider,
-          &QSlider::setValue);
-  connect(slider, &QSlider::sliderMoved, videoplayer,
-          &QMediaPlayer::setPosition);
   connect(play, &QPushButton::clicked, this, [=]() {
     if (videoplayer->isPlaying() == false) {
       videoplayer->play();
@@ -183,4 +191,10 @@ QPushButton *home::buttonset(QPushButton *button, std::string iconpath, int x,
   button->setGeometry(x, y, w + 2, h + 2);
   button->setFlat(true);
   return button;
+}
+
+void home::volumeswicher(int value) noexcept {
+  qreal dB = -60.0 + (value / 100.0) * 60.0;
+  qreal linearVolume = std::pow(10.0, dB / 20.0);
+  audiooutput->setVolume(linearVolume);
 }
