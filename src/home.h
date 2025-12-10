@@ -1,6 +1,8 @@
 #pragma once
 
+#include "playlist.h"
 #include "polygon.h"
+#include "scrollarea.h"
 #include "videowidget.h"
 #include "yslider.h"
 #include <QAudioOutput>
@@ -48,6 +50,8 @@ private:
   polygon *console = nullptr;
 
   yslider *yantsyslider = nullptr, *yvolume = nullptr;
+  Myscrollarea *season = nullptr, *episode = nullptr;
+  MyPlayList *playlist = nullptr;
   void volumeswicher(int value) noexcept;
 
 private slots:

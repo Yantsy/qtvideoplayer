@@ -93,6 +93,22 @@ home::home(QWidget *parent) : QWidget(parent) {
                 console->geometry().x() + console->geometry().width() - 44,
                 buttony, 34, 34);
 
+  /*season = new Myscrollarea(this);
+  season->move(videowid->geometry().x() + videowid->geometry().width() + 10, 0);
+  season->setFixedSize(ww - season->geometry().x(), wh / 2 - 10);
+
+  episode = new Myscrollarea(this);
+  episode->move(videowid->geometry().x() + videowid->geometry().width() + 10,
+                wh / 2);
+  episode->setFixedSize(ww - episode->geometry().x(), wh / 2);*/
+
+  // myscrollarea->setWidgetResizable(true);
+  playlist = new MyPlayList(this);
+  playlist->setQVideoWidget(videowidget);
+  playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
+                 0);
+  playlist->resize(ww - playlist->geometry().x(), wh - 10);
+
   // signals and slots
   // clicked events
   connect(yvolume, &yslider::valueChanged, this,
