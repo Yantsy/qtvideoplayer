@@ -24,6 +24,8 @@ public:
   MyPlayList(QWidget *parent = nullptr);
   ~MyPlayList();
   void setQVideoWidget(QVideoWidget *pvideowidget);
+  void setAudioOutput(QAudioOutput *paudio);
+  void setQMediaPlayer(QMediaPlayer *pplayer);
 
 private:
   // funtions
@@ -46,11 +48,13 @@ private:
   QLabel *pageLabel = nullptr;
   QMediaPlayer *player = nullptr;
   QVideoWidget *videoWidget = nullptr;
+  QAudioOutput *audiooutput = nullptr;
 
   // data
 
   QSet<QString> savedFolders;
   QMap<QTreeWidgetItem *, QString> itemPathMap;
+  QVector<QString> currentVideos;
   int currentPage;
   int itemsPerPage;
   QSet<QString> videoExtensions;
