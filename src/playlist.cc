@@ -1,7 +1,7 @@
 #include "playlist.h"
 
 MyPlayList::MyPlayList(QWidget *parent)
-    : QWidget(parent), currentPage(0), itemsPerPage(10) {
+    : QWidget(parent), currentPage(0), itemsPerPage(13) {
 
   configFile = "playlist_config.json";
 
@@ -197,10 +197,58 @@ void MyPlayList::playVideo(QListWidgetItem *item) {
   player->play();
 }
 
-void MyPlayList::nextPage() {}
+void MyPlayList::nextPage() {
+  int totalPages = (currentVideos.size() + itemsPerPage - 1) / itemsPerPage;
+  if (currentPage < totalPages - 1) {
+    currentPage++;
+    updateVideoList();
+  }
+}
 
-void MyPlayList::prevPage() {}
+void MyPlayList::prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    updateVideoList();
+  }
+}
 
-void MyPlayList::loadSavedFolders() {}
+void MyPlayList::loadSavedFolders() {
+  QFile file(configFile);
+  if (!file.open(QIODevice::ReadOnly))
+    return;
 
-void MyPlayList::saveFolders() {}
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+  file.close();
+
+  if (!doc.isArray())
+    return;
+
+  QJsonArray array = doc.array();
+
+  for (const QJsonValue &value : array) {
+    QString folderPath = value.toString();
+    if (QDir(folderPath).exists()) {
+      savedFolders.insert(folderPath);
+
+      QTreeWidgetItem *rootItem = new QTreeWidgetItem(folderTree);
+      rootItem->setText(0, QDir(folderPath).dirName());
+      itemPathMap[rootItem] = folderPath;
+      scanFolderStructure(folderPath, rootItem);
+    }
+  }
+}
+
+void MyPlayList::saveFolders() {
+  QJsonArray array;
+  for (const QString &folderPath : savedFolders) {
+    array.append(folderPath);
+  }
+
+  QJsonDocument doc(array);
+
+  QFile file(configFile);
+  if (!file.open(QIODevice::WriteOnly)) {
+    file.write(doc.toJson());
+    file.close();
+  }
+}
