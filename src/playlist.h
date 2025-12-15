@@ -62,6 +62,10 @@ private:
 
   QString configFile;
 
+public slots:
+  void lastVideo();
+  void nextVideo();
+
 private slots:
 
   void addFolder();

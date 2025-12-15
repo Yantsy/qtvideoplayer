@@ -28,10 +28,7 @@ home::home(QWidget *parent) : QWidget(parent) {
   console->lower();
   const auto buttony = console->geometry().y() + 45;
   // add buttons and sliders
-  /*slider = new QSlider(Qt::Horizontal, this);
-  slider->setGeometry(videowid->geometry().x() + 5,
-                      console->geometry().y() + 18,
-                      console->geometry().width() - 10, 5);*/
+
   yantsyslider = new yslider(this);
   yantsyslider->setGeometry(videowid->geometry().x() + 5,
                             console->geometry().y() + 18,
@@ -50,13 +47,6 @@ home::home(QWidget *parent) : QWidget(parent) {
                        buttony, 34, 34);
   audio = buttonset(audio, "volume", console->geometry().x() + 151, buttony, 34,
                     34);
-
-  /*volume = new QSlider(Qt::Horizontal, this);
-  volume->setGeometry(
-      audio->geometry().x() + 35,
-      audio->geometry().y() + audio->geometry().height() / 2 - 10, 50, 20);
-  volume->setRange(0, 100);
-  volume->setValue(50);*/
 
   yvolume = new yslider(this);
   yvolume->setGeometry(
@@ -93,34 +83,23 @@ home::home(QWidget *parent) : QWidget(parent) {
                 console->geometry().x() + console->geometry().width() - 44,
                 buttony, 34, 34);
 
-  /*season = new Myscrollarea(this);
-  season->move(videowid->geometry().x() + videowid->geometry().width() + 10, 0);
-  season->setFixedSize(ww - season->geometry().x(), wh / 2 - 10);
-
-  episode = new Myscrollarea(this);
-  episode->move(videowid->geometry().x() + videowid->geometry().width() + 10,
-                wh / 2);
-  episode->setFixedSize(ww - episode->geometry().x(), wh / 2);*/
-
   // myscrollarea->setWidgetResizable(true);
   playlist = new MyPlayList(this);
   playlist->setQMediaPlayer(videoplayer);
   playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
                  0);
   playlist->setMinimumSize(ww - playlist->geometry().x(), wh - 10);
+  playlist->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   // signals and slots
   // clicked events
+  connect(skipnext, &QPushButton::clicked, playlist, &MyPlayList::nextVideo);
+  connect(skiplast, &QPushButton::clicked, playlist, &MyPlayList::lastVideo);
   connect(yvolume, &yslider::valueChanged, this,
           [=](int value) { volumeswicher(value); });
   connect(yvolume, &yslider::sliderMoved, audiooutput,
           &QAudioOutput::setVolume);
-  /*connect(videoplayer, &QMediaPlayer::durationChanged, slider,
-          &QSlider::setMaximum);
-  connect(videoplayer, &QMediaPlayer::positionChanged, slider,
-          &QSlider::setValue);
-  connect(slider, &QSlider::sliderMoved, videoplayer,
-          &QMediaPlayer::setPosition);*/
+
   connect(videoplayer, &QMediaPlayer::durationChanged, yantsyslider,
           &yslider::setMaximum);
 

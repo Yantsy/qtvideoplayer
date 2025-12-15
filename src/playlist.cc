@@ -27,7 +27,15 @@ void MyPlayList::setQVideoWidget(QVideoWidget *pvideowidget) {
   videoWidget = pvideowidget;
 }
 void MyPlayList::setAudioOutput(QAudioOutput *paudio) { audiooutput = paudio; }
-void MyPlayList::setQMediaPlayer(QMediaPlayer *pplayer) { player = pplayer; }
+void MyPlayList::setQMediaPlayer(QMediaPlayer *pplayer) {
+  player = pplayer;
+  connect(player, &QMediaPlayer::mediaStatusChanged, this,
+          [=](QMediaPlayer::MediaStatus status) {
+            if (status == QMediaPlayer::EndOfMedia) {
+              nextVideo();
+            }
+          });
+}
 
 void MyPlayList::initUI() {
   // Initialize UI components and layout here
@@ -200,7 +208,33 @@ void MyPlayList::playVideo(QListWidgetItem *item) {
   player->setSource(QUrl::fromLocalFile(videoPath));
   player->play();
 }
-
+void MyPlayList::lastVideo() {
+  QString currentVideoPath = player->source().toLocalFile();
+  int currentIndex = currentVideos.indexOf(currentVideoPath);
+  int lastone = currentVideos.size() - 1;
+  if (currentIndex == -1)
+    return;
+  if (currentIndex == 0) {
+    player->setSource(QUrl::fromLocalFile(currentVideos[lastone]));
+    player->play();
+  } else {
+    player->setSource(QUrl::fromLocalFile(currentVideos[currentIndex - 1]));
+    player->play();
+  }
+}
+void MyPlayList::nextVideo() {
+  QString currentVideoPath = player->source().toLocalFile();
+  int currentIndex = currentVideos.indexOf(currentVideoPath);
+  if (currentIndex == -1)
+    return;
+  if (currentIndex < currentVideos.size() - 1) {
+    player->setSource(QUrl::fromLocalFile(currentVideos[currentIndex + 1]));
+    player->play();
+  } else {
+    player->setSource(QUrl::fromLocalFile(currentVideos[0]));
+    player->play();
+  }
+}
 void MyPlayList::nextPage() {
   int totalPages = (currentVideos.size() + itemsPerPage - 1) / itemsPerPage;
   if (currentPage < totalPages - 1) {
