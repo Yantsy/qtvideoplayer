@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>

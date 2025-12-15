@@ -39,7 +39,7 @@ private:
                          int y, int w, int h);
   videoget *videowid = nullptr;
   // ui参数表
-  int ww = 1307, wh = 644;
+  int ww = 1307 - 120, wh = 644;
   int bw = 80, bh = 30;
 
   int id = 0;

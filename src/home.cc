@@ -107,7 +107,7 @@ home::home(QWidget *parent) : QWidget(parent) {
   playlist->setQMediaPlayer(videoplayer);
   playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
                  0);
-  playlist->resize(385, wh - 10);
+  playlist->setMinimumSize(ww - playlist->geometry().x(), wh - 10);
 
   // signals and slots
   // clicked events

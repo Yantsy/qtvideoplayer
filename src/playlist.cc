@@ -3,7 +3,8 @@
 MyPlayList::MyPlayList(QWidget *parent)
     : QWidget(parent), currentPage(0), itemsPerPage(13) {
 
-  configFile = "playlist_config.json";
+  configFile = QApplication::applicationDirPath() + "/playlist_config.json";
+  qDebug() << "配置文件路径：" << configFile;
 
   videoExtensions << "mp4"
                   << "avi"
@@ -34,6 +35,7 @@ void MyPlayList::initUI() {
   QWidget *centralWidget = new QWidget(this);
 
   QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
 
   // TOP BUTTONS
   QHBoxLayout *topLayout = new QHBoxLayout();
@@ -54,20 +56,21 @@ void MyPlayList::initUI() {
 
   folderTree = new QTreeWidget(this);
   folderTree->setHeaderLabel("文件夹列表");
-  folderTree->setFixedWidth(380);
+  // folderTree->setFixedWidth(346);
   connect(folderTree, &QTreeWidget::itemClicked, this,
           &MyPlayList::onFolderSelected);
 
   // episode part
   QWidget *episodeWidget = new QWidget(this);
-  episodeWidget->setFixedWidth(380);
+  // episodeWidget->setFixedWidth(357);
   QVBoxLayout *episodeLayout = new QVBoxLayout(episodeWidget);
+  episodeLayout->setContentsMargins(0, 0, 0, 0);
   QLabel *listlabel = new QLabel("视频列表", this);
   episodeLayout->addWidget(listlabel);
 
   videoList = new QListWidget(this);
-  videoList->setFixedWidth(380);
-  videoList->setMinimumHeight(250);
+  // videoList->setFixedWidth(346);
+  // videoList->setMinimumHeight(250);
 
   connect(videoList, &QListWidget::itemDoubleClicked, this,
           &MyPlayList::playVideo);
@@ -105,6 +108,7 @@ void MyPlayList::addFolder() {
     return;
   }
   savedFolders.insert(folderPath);
+  qDebug() << "当前保存的文件夹数量：" << savedFolders.size();
 
   QTreeWidgetItem *rootItem = new QTreeWidgetItem(folderTree);
   rootItem->setText(0, QDir(folderPath).dirName());
@@ -214,19 +218,27 @@ void MyPlayList::prevPage() {
 
 void MyPlayList::loadSavedFolders() {
   QFile file(configFile);
-  if (!file.open(QIODevice::ReadOnly))
+  if (!file.open(QIODevice::ReadOnly)) {
+    qDebug() << "配置文件不存在:" << configFile;
     return;
+  }
 
-  QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+  QByteArray data = file.readAll();
   file.close();
+  qDebug() << "读取到的配置文件内容：" << data;
 
-  if (!doc.isArray())
+  QJsonDocument doc = QJsonDocument::fromJson(data);
+  if (!doc.isArray()) {
+    qDebug() << "配置文件格式错误";
     return;
+  }
 
   QJsonArray array = doc.array();
+  qDebug() << "配置文件中的文件数量：" << array.size();
 
   for (const QJsonValue &value : array) {
     QString folderPath = value.toString();
+    qDebug() << "加载文件夹：" << folderPath;
     if (QDir(folderPath).exists()) {
       savedFolders.insert(folderPath);
 
@@ -234,6 +246,8 @@ void MyPlayList::loadSavedFolders() {
       rootItem->setText(0, QDir(folderPath).dirName());
       itemPathMap[rootItem] = folderPath;
       scanFolderStructure(folderPath, rootItem);
+    } else {
+      qDebug() << "文件夹不存在：" << folderPath;
     }
   }
 }
@@ -247,8 +261,12 @@ void MyPlayList::saveFolders() {
   QJsonDocument doc(array);
 
   QFile file(configFile);
-  if (!file.open(QIODevice::WriteOnly)) {
+  if (file.open(QIODevice::WriteOnly)) {
     file.write(doc.toJson());
     file.close();
+    qDebug() << "配置已经保存到：" << configFile;
+    qDebug() << "保存的文件夹数量：" << savedFolders.size();
+  } else {
+    qDebug() << "无法保存配置文件到：" << configFile;
   }
 }
