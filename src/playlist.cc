@@ -1,7 +1,7 @@
 #include "playlist.h"
 
 MyPlayList::MyPlayList(QWidget *parent)
-    : QWidget(parent), currentPage(0), itemsPerPage(13) {
+    : QWidget(parent), currentPage(0), itemsPerPage(20) {
 
   configFile = QApplication::applicationDirPath() + "/playlist_config.json";
   qDebug() << "配置文件路径：" << configFile;
@@ -40,19 +40,40 @@ void MyPlayList::setQMediaPlayer(QMediaPlayer *pplayer) {
 void MyPlayList::initUI() {
   // Initialize UI components and layout here
 
-  QWidget *centralWidget = new QWidget(this);
+  // QWidget *centralWidget = new QWidget(this);
 
-  QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+  QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
 
   // TOP BUTTONS
   QHBoxLayout *topLayout = new QHBoxLayout();
   addFolderButton = new QPushButton(this);
   addFolderButton->setIcon(QIcon(":/resources/addfile.png"));
-  addFolderButton->setIconSize(QSize(34, 34));
+  addFolderButton->setIconSize(QSize(24, 24));
   addFolderButton->setFlat(true);
   connect(addFolderButton, &QPushButton::clicked, this, &MyPlayList::addFolder);
+  downloadButton = new QPushButton(this);
+  downloadButton->setIcon(QIcon(":/resources/download.png"));
+  downloadButton->setIconSize(QSize(24, 24));
+  downloadButton->setFlat(true);
+  inboxButton = new QPushButton(this);
+  inboxButton->setIcon(QIcon(":/resources/inbox.png"));
+  inboxButton->setIconSize(QSize(24, 24));
+  inboxButton->setFlat(true);
+  menuButton = new QPushButton(this);
+  menuButton->setIcon(QIcon(":/resources/menu.png"));
+  menuButton->setIconSize(QSize(24, 24));
+  menuButton->setFlat(true);
+  moreButton = new QPushButton(this);
+  moreButton->setIcon(QIcon(":/resources/more_horiz.png"));
+  moreButton->setIconSize(QSize(24, 24));
+  moreButton->setFlat(true);
   topLayout->addWidget(addFolderButton);
+  topLayout->addWidget(downloadButton);
+  topLayout->addWidget(inboxButton);
+  topLayout->addWidget(menuButton);
+  topLayout->addWidget(moreButton);
+
   topLayout->addStretch();
   mainLayout->addLayout(topLayout);
 
@@ -82,12 +103,19 @@ void MyPlayList::initUI() {
 
   connect(videoList, &QListWidget::itemDoubleClicked, this,
           &MyPlayList::playVideo);
-  episodeLayout->addWidget(videoList);
+  episodeLayout->addWidget(videoList, 1);
 
   // pages
   QHBoxLayout *pageLayout = new QHBoxLayout();
-  prevPageButton = new QPushButton("<", this);
-  nextPageButton = new QPushButton(">", this);
+  pageLayout->setContentsMargins(0, 0, 0, 0);
+  prevPageButton = new QPushButton(this);
+  prevPageButton->setIcon(QIcon(":/resources/fast_rewind.png"));
+  prevPageButton->setIconSize(QSize(24, 24));
+  prevPageButton->setFlat(true);
+  nextPageButton = new QPushButton(this);
+  nextPageButton->setIcon(QIcon(":/resources/fast_forward.png"));
+  nextPageButton->setIconSize(QSize(24, 24));
+  nextPageButton->setFlat(true);
   pageLabel = new QLabel("页码：1/1", this);
 
   connect(prevPageButton, &QPushButton::clicked, this, &MyPlayList::prevPage);
@@ -100,6 +128,10 @@ void MyPlayList::initUI() {
 
   splitter->addWidget(folderTree);
   splitter->addWidget(episodeWidget);
+  folderTree->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  episodeWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  splitter->setStretchFactor(0, 1);
+  splitter->setStretchFactor(1, 2);
 
   mainLayout->addWidget(splitter);
 }

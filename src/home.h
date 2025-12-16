@@ -55,7 +55,6 @@ private:
   void volumeswicher(int value) noexcept;
 
 private slots:
-  void openfile();
 
 protected:
   void paintEvent(QPaintEvent *event) override;

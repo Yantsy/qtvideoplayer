@@ -43,7 +43,9 @@ private:
 
   QTreeWidget *folderTree = nullptr;
   QListWidget *videoList = nullptr;
-  QPushButton *addFolderButton = nullptr;
+  QPushButton *addFolderButton = nullptr, *menuButton = nullptr,
+              *inboxButton = nullptr, *moreButton = nullptr,
+              *downloadButton = nullptr;
   QPushButton *prevPageButton = nullptr;
   QPushButton *nextPageButton = nullptr;
   QLabel *pageLabel = nullptr;

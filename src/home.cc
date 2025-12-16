@@ -1,11 +1,23 @@
 #include "home.h"
 
 home::home(QWidget *parent) : QWidget(parent) {
+
+  // basic settings
   this->setWindowTitle("Qt Video Player");
   this->setMinimumSize(ww, wh);
   this->setWindowFlags(Qt::WindowMaximizeButtonHint |
                        Qt::WindowCloseButtonHint |
                        Qt::WindowMinimizeButtonHint);
+  QHBoxLayout *mainLayout = new QHBoxLayout(this);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
+
+  QVBoxLayout *videolayout = new QVBoxLayout();
+  videolayout->setContentsMargins(0, 0, 0, 0);
+  mainLayout->addLayout(videolayout);
+
+  QVBoxLayout *selectlayout = new QVBoxLayout();
+  selectlayout->setContentsMargins(0, 0, 0, 0);
+  mainLayout->addLayout(selectlayout);
 
   // add mediapalyer and videowidget
   videowid = new videoget(this);
@@ -13,7 +25,10 @@ home::home(QWidget *parent) : QWidget(parent) {
   videowidget = new QVideoWidget(this);
   audiooutput = new QAudioOutput(this);
   videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
-  videowid->setGeometry(17, 9, 897 + (1 / 3) - 20 + 26, 477);
+  videowid->setGeometry(videowidget->geometry().x() - 13,
+                        videowidget->geometry().y() - 1,
+                        videowidget->geometry().width() + 26,
+                        videowidget->geometry().height() + 2);
   videowidget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
   videoplayer->setVideoOutput(videowidget);
@@ -27,6 +42,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       videowid->geometry().width(), 104, 8, 8, QColor(243, 232, 232));
   console->lower();
   const auto buttony = console->geometry().y() + 45;
+
   // add buttons and sliders
 
   yantsyslider = new yslider(this);
@@ -43,8 +59,10 @@ home::home(QWidget *parent) : QWidget(parent) {
 
   skiplast = buttonset(skiplast, "skip_previous", console->geometry().x() + 55,
                        buttony, 34, 34);
+
   skipnext = buttonset(skipnext, "skip_next", console->geometry().x() + 103,
                        buttony, 34, 34);
+
   audio = buttonset(audio, "volume", console->geometry().x() + 151, buttony, 34,
                     34);
 
@@ -60,24 +78,25 @@ home::home(QWidget *parent) : QWidget(parent) {
   yvolume->setValue(80);
   volumeswicher(yvolume->value());
 
-  open = buttonset(open, "addfile",
-                   console->geometry().x() + console->geometry().width() - 284,
-                   buttony, 34, 34);
   setting =
       buttonset(setting, "setting",
                 console->geometry().x() + console->geometry().width() - 236,
                 buttony, 34, 34);
+  videolayout->addWidget(setting);
   subtitle =
       buttonset(subtitle, "subtitle",
                 console->geometry().x() + console->geometry().width() - 188,
                 buttony, 34, 34);
+
   sound = buttonset(sound, "sound",
                     console->geometry().x() + console->geometry().width() - 140,
                     buttony, 34, 34);
+
   outview =
       buttonset(outview, "setting",
                 console->geometry().x() + console->geometry().width() - 92,
                 buttony, 34, 34);
+
   fullscreen =
       buttonset(fullscreen, "fullscreen",
                 console->geometry().x() + console->geometry().width() - 44,
@@ -88,7 +107,7 @@ home::home(QWidget *parent) : QWidget(parent) {
   playlist->setQMediaPlayer(videoplayer);
   playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
                  0);
-  playlist->setMinimumSize(ww - playlist->geometry().x(), wh - 10);
+  playlist->setMinimumSize(ww - playlist->geometry().x(), wh);
   playlist->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   // signals and slots
@@ -126,8 +145,6 @@ home::home(QWidget *parent) : QWidget(parent) {
     }
   });
 
-  connect(open, &QPushButton::clicked, this, &home::openfile);
-
   // shortcut events
   fulscr_shortcut =
       new QShortcut(QKeySequence("F"), fullscreen, SIGNAL(clicked()));
@@ -157,17 +174,6 @@ home::home(QWidget *parent) : QWidget(parent) {
 }
 
 home::~home() {}
-
-void home::openfile() {
-  path = new QString(QFileDialog::getOpenFileName(this, "open file from ..."));
-
-  if (!path->isEmpty()) {
-    videoplayer->setSource(QUrl::fromLocalFile(*path));
-    videoplayer->play();
-  }
-
-  this->setWindowTitle(*path);
-}
 
 void home::paintEvent(QPaintEvent *event) {
   homepainter = new QPainter(this);
