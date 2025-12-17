@@ -12,6 +12,7 @@
 #include <QListWidget>
 #include <QMediaPlayer>
 #include <QMessageBox>
+#include <QPalette>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QSplitter>
@@ -68,6 +69,7 @@ private:
   QString configFile;
 
   void scrollbarsetup(QAbstractItemView *treewidget);
+  void widgetsetup(QAbstractItemView *widget);
 
 public slots:
   void lastVideo();

@@ -89,6 +89,7 @@ void MyPlayList::initUI() {
   folderTree = new QTreeWidget(this);
   folderTree->setHeaderHidden(true);
   scrollbarsetup(folderTree);
+  widgetsetup(folderTree);
   connect(folderTree, &QTreeWidget::itemClicked, this,
           &MyPlayList::onFolderSelected);
 
@@ -103,6 +104,7 @@ void MyPlayList::initUI() {
 
   videoList = new QListWidget(this);
   scrollbarsetup(videoList);
+  widgetsetup(videoList);
 
   connect(videoList, &QListWidget::itemDoubleClicked, this,
           &MyPlayList::playVideo);
@@ -366,4 +368,26 @@ void MyPlayList::scrollbarsetup(QAbstractItemView *treewidget) {
       "QScrollBar::add-page:horizontal,QScrollBar::sub-page:horizontal{"
       "background: "
       "none; }");
+}
+
+void MyPlayList::widgetsetup(QAbstractItemView *widget) {
+  QFile file(":/resources/amexicanvaquero.jpg");
+  qDebug() << "Resource exists:" << file.exists();
+  QPalette palette;
+  QPixmap bgPixmap(":/resources/waterlilies.jpg");
+  palette.setBrush(QPalette::Base, QBrush(bgPixmap));
+  widget->setPalette(palette);
+  // 调试：列出所有可用资源（查找正确路径）
+  QDir resourceDir(":/");
+  qDebug() << "Available resources:" << resourceDir.entryList();
+  widget->setStyleSheet(
+      "QAbstractItemView::viewport{"
+      "border-radius:14px;padding:10px;border:2px solid "
+      "rgba(235,88,88,80);}"
+      "QAbstractItemView::item{background:rgba(255,255,255,50);color:black;}"
+      "QAbstractItemView::item:hover{background:rgba(235,88,88,50)}"
+      "QAbstractItemView::item:selected{background:rgba(235,88,88,70);color:"
+      "white;}"
+      "QAbstractItemView::branch{background:rgba(235,88,88,50);}"
+      "QAbstractItemView::branch:selected{background:rgba(235,88,88,70);}");
 }
