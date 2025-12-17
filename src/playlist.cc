@@ -1,4 +1,5 @@
 #include "playlist.h"
+#include "label.h"
 
 MyPlayList::MyPlayList(QWidget *parent)
     : QWidget(parent), currentPage(0), itemsPerPage(20) {
@@ -82,24 +83,26 @@ void MyPlayList::initUI() {
   splitter->setOrientation(Qt::Vertical);
 
   // season part
-
+  MyLabel *folderlabel = new MyLabel("文件夹列表", this);
+  folderlabel->setColor(QColor(235, 88, 88));
+  mainLayout->addWidget(folderlabel);
   folderTree = new QTreeWidget(this);
-  folderTree->setHeaderLabel("文件夹列表");
-  // folderTree->setFixedWidth(346);
+  folderTree->setHeaderHidden(true);
+  scrollbarsetup(folderTree);
   connect(folderTree, &QTreeWidget::itemClicked, this,
           &MyPlayList::onFolderSelected);
 
   // episode part
   QWidget *episodeWidget = new QWidget(this);
-  // episodeWidget->setFixedWidth(357);
+
   QVBoxLayout *episodeLayout = new QVBoxLayout(episodeWidget);
   episodeLayout->setContentsMargins(0, 0, 0, 0);
-  QLabel *listlabel = new QLabel("视频列表", this);
+  MyLabel *listlabel = new MyLabel("视频列表", this);
+  listlabel->setColor(QColor(235, 88, 88));
   episodeLayout->addWidget(listlabel);
 
   videoList = new QListWidget(this);
-  // videoList->setFixedWidth(346);
-  // videoList->setMinimumHeight(250);
+  scrollbarsetup(videoList);
 
   connect(videoList, &QListWidget::itemDoubleClicked, this,
           &MyPlayList::playVideo);
@@ -335,4 +338,32 @@ void MyPlayList::saveFolders() {
   } else {
     qDebug() << "无法保存配置文件到：" << configFile;
   }
+}
+
+void MyPlayList::scrollbarsetup(QAbstractItemView *treewidget) {
+  QScrollBar *vertical = treewidget->verticalScrollBar();
+  vertical->setStyleSheet(
+      "QScrollBar:vertical{ width: 12px; background:transparent; margin:0px;}"
+      "QScrollBar::groove:vertical { background: transparent; }"
+      "QScrollBar::handle:vertical{background:rgba(235, 88, "
+      "88,80);border-radius:5px;min-"
+      "height:30px;}"
+      "QScrollBar::handle:vertical:hover{background:rgba(235, 88, 88,150);}"
+      "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0px;}"
+      "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background: "
+      "none; }");
+  QScrollBar *horizontal = treewidget->horizontalScrollBar();
+  horizontal->setStyleSheet(
+      "QScrollBar:horizontal{ height: 8px; background:transparent; "
+      "margin:0px;}"
+      "QScrollBar::groove:horizontal { background: transparent; }"
+      "QScrollBar::handle:horizontal{background:rgba(235, 88, "
+      "88,80);border-radius:5px;min-"
+      "width:30px;}"
+      "QScrollBar::handle:horizontal:hover{background:rgba(235, 88, 88,150);}"
+      "QScrollBar::add-line:horizontal,QScrollBar::sub-line:horizontal{height:"
+      "0px;}"
+      "QScrollBar::add-page:horizontal,QScrollBar::sub-page:horizontal{"
+      "background: "
+      "none; }");
 }

@@ -8,10 +8,9 @@ qt_add_executable(${PROJECT_NAME}
     ../src/polygon.h
     ../src/yslider.cc
     ../src/yslider.h
-    ../src/scrollarea.h
-    ../src/scrollarea.cc
     ../src/playlist.cc
     ../src/playlist.h
+    ../src/label.h
 )
 
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})

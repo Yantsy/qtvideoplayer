@@ -4,7 +4,7 @@
 #include <QPainterPath>
 #include <QSlider>
 
-class yslider : public QSlider {
+class yslider : public QAbstractSlider {
   Q_OBJECT
 public:
   yslider(QWidget *parent = nullptr);

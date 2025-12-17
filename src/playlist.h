@@ -13,6 +13,7 @@
 #include <QMediaPlayer>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSplitter>
 #include <QTreeWidget>
 #include <QUrl>
@@ -52,6 +53,8 @@ private:
   QMediaPlayer *player = nullptr;
   QVideoWidget *videoWidget = nullptr;
   QAudioOutput *audiooutput = nullptr;
+  // QScrollBar *vscrollbar = nullptr, *hscrollbar = nullptr;
+  QSplitter *splitter = nullptr;
 
   // data
 
@@ -63,6 +66,8 @@ private:
   QSet<QString> videoExtensions;
 
   QString configFile;
+
+  void scrollbarsetup(QAbstractItemView *treewidget);
 
 public slots:
   void lastVideo();

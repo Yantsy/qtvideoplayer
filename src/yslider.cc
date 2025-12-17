@@ -1,5 +1,5 @@
 #include "yslider.h"
-yslider::yslider(QWidget *parent) : QSlider(parent) {
+yslider::yslider(QWidget *parent) : QAbstractSlider(parent) {
   this->setOrientation(Qt::Horizontal);
 }
 void yslider::getpara(int pxr, int pyr) {
@@ -78,7 +78,7 @@ void yslider::mouseMoveEvent(QMouseEvent *event) {
 void yslider::mouseReleaseEvent(QMouseEvent *event) {
   dragging = false;
   emit dragFinished();
-  QSlider::mouseReleaseEvent(event);
+  QAbstractSlider::mouseReleaseEvent(event);
 }
 
 /*struct MonitorComponent : public QVideoWidget {
