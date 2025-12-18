@@ -40,7 +40,7 @@ protected:
       p.setPen(Qt::NoPen);
       p.setBrush(*color);
       p.setRenderHint(QPainter::Antialiasing);
-      p.drawRoundedRect(this->rect(), 5, 5);
+      p.drawRoundedRect(this->rect(), 0, 0);
 
       p.setPen(Qt::white);
       p.setRenderHint(QPainter::Antialiasing);

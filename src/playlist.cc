@@ -45,27 +45,32 @@ void MyPlayList::initUI() {
 
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
+  mainLayout->setSpacing(0);
 
   // TOP BUTTONS
-  QHBoxLayout *topLayout = new QHBoxLayout();
-  addFolderButton = new QPushButton(this);
+  QWidget *topWidget = new QWidget(this);
+  mainLayout->addWidget(topWidget);
+  topWidget->setFixedHeight(30);
+
+  QHBoxLayout *topLayout = new QHBoxLayout(topWidget);
+  addFolderButton = new QPushButton(topWidget);
   addFolderButton->setIcon(QIcon(":/resources/addfile.png"));
   addFolderButton->setIconSize(QSize(24, 24));
   addFolderButton->setFlat(true);
   connect(addFolderButton, &QPushButton::clicked, this, &MyPlayList::addFolder);
-  downloadButton = new QPushButton(this);
+  downloadButton = new QPushButton(topWidget);
   downloadButton->setIcon(QIcon(":/resources/download.png"));
   downloadButton->setIconSize(QSize(24, 24));
   downloadButton->setFlat(true);
-  inboxButton = new QPushButton(this);
+  inboxButton = new QPushButton(topWidget);
   inboxButton->setIcon(QIcon(":/resources/inbox.png"));
   inboxButton->setIconSize(QSize(24, 24));
   inboxButton->setFlat(true);
-  menuButton = new QPushButton(this);
+  menuButton = new QPushButton(topWidget);
   menuButton->setIcon(QIcon(":/resources/menu.png"));
   menuButton->setIconSize(QSize(24, 24));
   menuButton->setFlat(true);
-  moreButton = new QPushButton(this);
+  moreButton = new QPushButton(topWidget);
   moreButton->setIcon(QIcon(":/resources/more_horiz.png"));
   moreButton->setIconSize(QSize(24, 24));
   moreButton->setFlat(true);
@@ -76,15 +81,24 @@ void MyPlayList::initUI() {
   topLayout->addWidget(moreButton);
 
   topLayout->addStretch();
-  mainLayout->addLayout(topLayout);
+  topLayout->setContentsMargins(0, 0, 0, 0);
+  topWidget->setStyleSheet(
+      "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:5px;}"
+      "QPushButton{border:none;background-color: transparent;padding:5px;}"
+      "QPushButton:hover{background-color: rgba(235, 88, 88, "
+      "150);border-radius:5px;}"
+      "QPushButton:pressed{background-color: rgba(200, 70, 70, "
+      "200);border-radius:5px;}");
 
   // splitter
   QSplitter *splitter = new QSplitter(this);
   splitter->setOrientation(Qt::Vertical);
+  splitter->setHandleWidth(0);
 
   // season part
   MyLabel *folderlabel = new MyLabel("文件夹列表", this);
   folderlabel->setColor(QColor(235, 88, 88));
+
   mainLayout->addWidget(folderlabel);
   folderTree = new QTreeWidget(this);
   folderTree->setHeaderHidden(true);
@@ -98,8 +112,10 @@ void MyPlayList::initUI() {
 
   QVBoxLayout *episodeLayout = new QVBoxLayout(episodeWidget);
   episodeLayout->setContentsMargins(0, 0, 0, 0);
+  episodeLayout->setSpacing(0);
   MyLabel *listlabel = new MyLabel("视频列表", this);
   listlabel->setColor(QColor(235, 88, 88));
+
   episodeLayout->addWidget(listlabel);
 
   videoList = new QListWidget(this);
@@ -111,17 +127,31 @@ void MyPlayList::initUI() {
   episodeLayout->addWidget(videoList, 1);
 
   // pages
-  QHBoxLayout *pageLayout = new QHBoxLayout();
+  QWidget *pageWidget = new QWidget(this);
+  pageWidget->setFixedHeight(40);
+  pageWidget->setContentsMargins(0, 0, 0, 0);
+  pageWidget->setStyleSheet(
+      "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:5px;}"
+      "QPushButton{border:none;background-color: transparent;padding:5px;}"
+      "QPushButton:hover{background-color: rgba(235, 88, 88, "
+      "150);border-radius:5px;}"
+      "QPushButton:pressed{background-color: rgba(200, 70, 70, "
+      "200);border-radius:5px;}"
+      "QLabel{color:white;font-weight:bold;background-color: "
+      "transparent;align:center;}"
+      "QLabel:hover{color:white;background-color: rgba(235, 88, 88, 150;}");
+  QHBoxLayout *pageLayout = new QHBoxLayout(pageWidget);
   pageLayout->setContentsMargins(0, 0, 0, 0);
-  prevPageButton = new QPushButton(this);
+  prevPageButton = new QPushButton(pageWidget);
   prevPageButton->setIcon(QIcon(":/resources/fast_rewind.png"));
   prevPageButton->setIconSize(QSize(24, 24));
   prevPageButton->setFlat(true);
-  nextPageButton = new QPushButton(this);
+  nextPageButton = new QPushButton(pageWidget);
   nextPageButton->setIcon(QIcon(":/resources/fast_forward.png"));
   nextPageButton->setIconSize(QSize(24, 24));
   nextPageButton->setFlat(true);
-  pageLabel = new QLabel("页码：1/1", this);
+  pageLabel = new QLabel("页码：1/1", pageWidget);
+  pageLabel->setAlignment(Qt::AlignCenter);
 
   connect(prevPageButton, &QPushButton::clicked, this, &MyPlayList::prevPage);
   connect(nextPageButton, &QPushButton::clicked, this, &MyPlayList::nextPage);
@@ -129,7 +159,7 @@ void MyPlayList::initUI() {
   pageLayout->addWidget(prevPageButton);
   pageLayout->addWidget(pageLabel);
   pageLayout->addWidget(nextPageButton);
-  episodeLayout->addLayout(pageLayout);
+  episodeLayout->addWidget(pageWidget);
 
   splitter->addWidget(folderTree);
   splitter->addWidget(episodeWidget);
