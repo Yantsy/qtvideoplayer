@@ -83,7 +83,7 @@ void MyPlayList::initUI() {
   topLayout->addStretch();
   topLayout->setContentsMargins(0, 0, 0, 0);
   topWidget->setStyleSheet(
-      "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:5px;}"
+      "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:0px;}"
       "QPushButton{border:none;background-color: transparent;padding:5px;}"
       "QPushButton:hover{background-color: rgba(235, 88, 88, "
       "150);border-radius:5px;}"
@@ -138,8 +138,8 @@ void MyPlayList::initUI() {
       "QPushButton:pressed{background-color: rgba(200, 70, 70, "
       "200);border-radius:5px;}"
       "QLabel{color:white;font-weight:bold;background-color: "
-      "transparent;align:center;}"
-      "QLabel:hover{color:white;background-color: rgba(235, 88, 88, 150;}");
+      "transparent;qproperty-alignment:AlignCenter;}"
+      "QLabel:hover{color:white;background-color: rgba(235, 88, 88, 150);}");
   QHBoxLayout *pageLayout = new QHBoxLayout(pageWidget);
   pageLayout->setContentsMargins(0, 0, 0, 0);
   prevPageButton = new QPushButton(pageWidget);

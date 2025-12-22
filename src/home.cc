@@ -4,10 +4,12 @@ home::home(QWidget *parent) : QWidget(parent) {
 
   // basic settings
   this->setWindowTitle("Qt Video Player");
-  this->setMinimumSize(ww, wh);
-  this->setWindowFlags(Qt::WindowMaximizeButtonHint |
+  ww = this->width();
+  wh = this->height();
+  // this->setMinimumSize(ww, wh);
+  /*this->setWindowFlags(Qt::WindowMaximizeButtonHint |
                        Qt::WindowCloseButtonHint |
-                       Qt::WindowMinimizeButtonHint);
+                       Qt::WindowMinimizeButtonHint);*/
   QHBoxLayout *mainLayout = new QHBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -24,11 +26,17 @@ home::home(QWidget *parent) : QWidget(parent) {
   videoplayer = new QMediaPlayer(this);
   videowidget = new QVideoWidget(this);
   audiooutput = new QAudioOutput(this);
-  videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
-  videowid->setGeometry(videowidget->geometry().x() - 13,
+  // videowidget->setGeometry(30, 10, ww, wh);
+  videowidget->move(30, 10);
+  videowidget->setMinimumSize(ww, wh);
+  /*videowid->setGeometry(videowidget->geometry().x() - 13,
                         videowidget->geometry().y() - 1,
                         videowidget->geometry().width() + 26,
-                        videowidget->geometry().height() + 2);
+                        videowidget->geometry().height() + 2);*/
+  videowid->move(videowidget->geometry().x() - 13,
+                 videowidget->geometry().y() - 1);
+  videowid->setMinimumSize(videowidget->minimumWidth() + 26,
+                           videowidget->minimumHeight() + 2);
   videowidget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
   videoplayer->setVideoOutput(videowidget);
@@ -78,10 +86,10 @@ home::home(QWidget *parent) : QWidget(parent) {
   yvolume->setValue(80);
   volumeswicher(yvolume->value());
 
-  setting =
+  /*setting =
       buttonset(setting, "setting",
                 console->geometry().x() + console->geometry().width() - 236,
-                buttony, 34, 34);
+                buttony, 34, 34);*/
   videolayout->addWidget(setting);
   subtitle =
       buttonset(subtitle, "subtitle",
@@ -103,17 +111,16 @@ home::home(QWidget *parent) : QWidget(parent) {
                 buttony, 34, 34);
 
   // myscrollarea->setWidgetResizable(true);
-  playlist = new MyPlayList(this);
-  playlist->setQMediaPlayer(videoplayer);
-  playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
+  // playlist = new MyPlayList(this);
+  // playlist->setQMediaPlayer(videoplayer);
+  /*playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
                  0);
   playlist->setMinimumSize(ww - playlist->geometry().x(), wh);
-  playlist->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  playlist->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);*/
 
   // signals and slots
   // clicked events
-  connect(skipnext, &QPushButton::clicked, playlist, &MyPlayList::nextVideo);
-  connect(skiplast, &QPushButton::clicked, playlist, &MyPlayList::lastVideo);
+
   connect(yvolume, &yslider::valueChanged, this,
           [=](int value) { volumeswicher(value); });
   connect(yvolume, &yslider::sliderMoved, audiooutput,

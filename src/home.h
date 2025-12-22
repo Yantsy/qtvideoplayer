@@ -20,16 +20,17 @@ class home : public QWidget {
   Q_OBJECT
 public:
   home(QWidget *parent = nullptr);
-
+  QMediaPlayer *videoplayer = nullptr;
+  // void Linkplaylist(MyPlayList *pplaylist) { myplaylist = pplaylist; };
   ~home();
+  QPushButton *skipnext = nullptr, *skiplast = nullptr;
 
 private:
-  QMediaPlayer *videoplayer = nullptr;
   QVideoWidget *videowidget = nullptr;
   QPushButton *playblock = nullptr, *play = nullptr, *pause = nullptr,
-              *open = nullptr, *outview = nullptr, *skipnext = nullptr,
-              *skiplast = nullptr, *sound = nullptr, *subtitle = nullptr,
-              *audio = nullptr, *fullscreen = nullptr, *setting = nullptr;
+              *open = nullptr, *outview = nullptr, *sound = nullptr,
+              *subtitle = nullptr, *audio = nullptr, *fullscreen = nullptr,
+              *setting = nullptr;
   QSlider *slider = nullptr, *volume = nullptr;
   QString *path = nullptr;
   QAudioOutput *audiooutput = nullptr;
@@ -38,7 +39,7 @@ private:
                          int y, int w, int h);
   videoget *videowid = nullptr;
   // ui参数表
-  int ww = 1307 - 120, wh = 644;
+  int ww, wh;
   int bw = 80, bh = 30;
 
   int id = 0;
@@ -49,7 +50,7 @@ private:
   polygon *console = nullptr;
 
   yslider *yantsyslider = nullptr, *yvolume = nullptr;
-  MyPlayList *playlist = nullptr;
+  MyPlayList *myplaylist = nullptr;
   void volumeswicher(int value) noexcept;
 
 private slots:

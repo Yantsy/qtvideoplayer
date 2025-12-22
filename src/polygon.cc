@@ -6,7 +6,8 @@ polygon::~polygon() {}
 
 void polygon::getpara(int px, int py, int pw, int ph, int pxr, int pyr,
                       QColor color) {
-  this->setGeometry(px, py, pw, ph);
+  this->move(px, py);
+  this->setMinimumSize(pw, ph);
   xr = pxr;
   yr = pyr;
 
