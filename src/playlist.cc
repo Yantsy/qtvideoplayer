@@ -404,7 +404,9 @@ void MyPlayList::widgetsetup(QAbstractItemView *widget) {
   QFile file(":/resources/amexicanvaquero.jpg");
   qDebug() << "Resource exists:" << file.exists();
   QPalette palette;
-  QPixmap bgPixmap(":/resources/waterlilies.jpg");
+  QPixmap bgPixmap(":/resources/blackswan.jpg");
+  bgPixmap = bgPixmap.scaled(widget->width(), bgPixmap.height(),
+                             Qt::KeepAspectRatio, Qt::SmoothTransformation);
   palette.setBrush(QPalette::Base, QBrush(bgPixmap));
   widget->setPalette(palette);
   // 调试：列出所有可用资源（查找正确路径）

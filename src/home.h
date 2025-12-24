@@ -2,7 +2,7 @@
 
 #include "playlist.h"
 #include "polygon.h"
-#include "videowidget.h"
+#include "rbvideowidget.h"
 #include "yslider.h"
 #include <QAudioOutput>
 #include <QFileDialog>

@@ -1,4 +1,4 @@
-#include "videowidget.h"
+#include "rbvideowidget.h"
 
 videoget::videoget(QWidget *parent) : QWidget(parent) {
   this->setAttribute(Qt::WA_TranslucentBackground);

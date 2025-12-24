@@ -2,8 +2,8 @@ qt_add_executable(${PROJECT_NAME}
     ../src/home.cc
     ../src/home.h
     ../src/main.cc
-../src/videowidget.cc
-    ../src/videowidget.h    
+../src/rbvideowidget.cc
+    ../src/rbvideowidget.h    
     ../src/polygon.cc
     ../src/polygon.h
     ../src/yslider.cc
