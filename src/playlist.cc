@@ -131,7 +131,7 @@ void MyPlayList::initUI() {
   pageWidget->setFixedHeight(40);
   pageWidget->setContentsMargins(0, 0, 0, 0);
   pageWidget->setStyleSheet(
-      "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:5px;}"
+      "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:0px;}"
       "QPushButton{border:none;background-color: transparent;padding:5px;}"
       "QPushButton:hover{background-color: rgba(235, 88, 88, "
       "150);border-radius:5px;}"

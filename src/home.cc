@@ -27,15 +27,15 @@ home::home(QWidget *parent) : QWidget(parent) {
   videowidget = new QVideoWidget(this);
   audiooutput = new QAudioOutput(this);
   // videowidget->setGeometry(30, 10, ww, wh);
-  videowidget->move(30, 10);
-  videowidget->setMinimumSize(ww, wh);
+  videowidget->move(19, 10);
+  videowidget->setMinimumSize(ww - 64, wh - 120);
   /*videowid->setGeometry(videowidget->geometry().x() - 13,
                         videowidget->geometry().y() - 1,
                         videowidget->geometry().width() + 26,
                         videowidget->geometry().height() + 2);*/
-  videowid->move(videowidget->geometry().x() - 13,
+  videowid->move(videowidget->geometry().x() - 12,
                  videowidget->geometry().y() - 1);
-  videowid->setMinimumSize(videowidget->minimumWidth() + 26,
+  videowid->setMinimumSize(videowidget->minimumWidth() + 24,
                            videowidget->minimumHeight() + 2);
   videowidget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
@@ -163,7 +163,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       this->hide();
     } else {
       videowidget->setFullScreen(false);
-      videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
+      videowidget->setGeometry(19, 10, ww - 64, wh - 120);
       this->show();
     }
   });
@@ -174,7 +174,7 @@ home::home(QWidget *parent) : QWidget(parent) {
       this->hide();
     } else {
       videowidget->setFullScreen(false);
-      videowidget->setGeometry(30, 10, 897 + (1 / 3) - 20, 475);
+      videowidget->setGeometry(19, 10, ww - 64, wh - 120);
       this->show();
     }
   });

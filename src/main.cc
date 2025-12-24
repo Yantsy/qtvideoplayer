@@ -4,6 +4,8 @@ int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
   QMainWindow mainWindow;
   home w;
+  w.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  w.setContentsMargins(0, 0, 0, 0);
   MyPlayList playlist;
   // w.Linkplaylist(&playlist);
   playlist.setQMediaPlayer(w.videoplayer);
@@ -19,12 +21,20 @@ int main(int argc, char *argv[]) {
   splitter->addWidget(&playlist);
   mainWindow.setCentralWidget(splitter);
   splitter->setContentsMargins(0, 0, 0, 0);
-  splitter->setHandleWidth(10);
+  splitter->setHandleWidth(1);
+  splitter->setStyleSheet(
+      "QSplitter::handle { background-color: rgba(51, 232, 219, 50); }"
+      "QSplitter::handle:hover { background-color: rgba(150, 150, 150, 100); "
+      "}");
+  splitter->setChildrenCollapsible(false);
   mainWindow.setWindowTitle("Yantsy Video Player");
-  mainWindow.setMinimumSize(1307 - 120, 644);
+  mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
-  w.setMinimumSize(mainWindow.width() * 2 / 3, mainWindow.height());
-  playlist.setMinimumSize(mainWindow.width() * 1 / 3, mainWindow.height());
+  w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());
+  playlist.setMinimumSize(mainWindow.width() - w.width(), mainWindow.height());
   mainWindow.show();
+
+  splitter->setStretchFactor(0, 2);
+  splitter->setStretchFactor(1, 1);
   return a.exec();
 }

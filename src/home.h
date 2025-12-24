@@ -39,8 +39,7 @@ private:
                          int y, int w, int h);
   videoget *videowid = nullptr;
   // ui参数表
-  int ww, wh;
-  int bw = 80, bh = 30;
+  double ww, wh;
 
   int id = 0;
   QString *family = nullptr;
