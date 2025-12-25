@@ -1,6 +1,5 @@
 #pragma once
 
-#include "playlist.h"
 #include "polygon.h"
 #include "rbvideowidget.h"
 #include "yslider.h"
@@ -8,6 +7,7 @@
 #include <QFileDialog>
 #include <QFont>
 #include <QFontDatabase>
+#include <QLayout>
 #include <QMediaPlayer>
 #include <QPushButton>
 #include <QShortcut>
@@ -15,7 +15,6 @@
 #include <QVideoWidget>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
-
 class home : public QWidget {
   Q_OBJECT
 public:
@@ -49,7 +48,7 @@ private:
   polygon *console = nullptr;
 
   yslider *yantsyslider = nullptr, *yvolume = nullptr;
-  MyPlayList *myplaylist = nullptr;
+  // MyPlayList *myplaylist = nullptr;
   void volumeswicher(int value) noexcept;
 
 private slots:

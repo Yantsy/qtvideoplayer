@@ -1,25 +1,33 @@
 #include "home.h"
+#include "playlist.h"
 #include <QMainWindow>
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
   QMainWindow mainWindow;
+  mainWindow.setWindowTitle("Yantsy Video Player");
+  mainWindow.setMinimumSize(920, 500);
+  mainWindow.setContentsMargins(0, 0, 0, 0);
+
   home w;
   w.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   w.setContentsMargins(0, 0, 0, 0);
+  w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());
+
   MyPlayList playlist;
   // w.Linkplaylist(&playlist);
   playlist.setQMediaPlayer(w.videoplayer);
   playlist.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  playlist.setMinimumSize(mainWindow.width() - w.width(), mainWindow.height());
   QObject::connect(w.skipnext, &QPushButton::clicked, &playlist,
                    &MyPlayList::nextVideo);
   QObject::connect(w.skiplast, &QPushButton::clicked, &playlist,
                    &MyPlayList::lastVideo);
 
   QSplitter *splitter = new QSplitter(&mainWindow);
+  mainWindow.setCentralWidget(splitter);
   splitter->setOrientation(Qt::Horizontal);
   splitter->addWidget(&w);
   splitter->addWidget(&playlist);
-  mainWindow.setCentralWidget(splitter);
   splitter->setContentsMargins(0, 0, 0, 0);
   splitter->setHandleWidth(1);
   splitter->setStyleSheet(
@@ -27,13 +35,8 @@ int main(int argc, char *argv[]) {
       "QSplitter::handle:hover { background-color: rgba(150, 150, 150, 100); "
       "}");
   splitter->setChildrenCollapsible(false);
-  mainWindow.setWindowTitle("Yantsy Video Player");
-  mainWindow.setMinimumSize(920, 500);
-  mainWindow.setContentsMargins(0, 0, 0, 0);
-  w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());
-  playlist.setMinimumSize(mainWindow.width() - w.width(), mainWindow.height());
-  mainWindow.show();
 
+  mainWindow.show();
   splitter->setStretchFactor(0, 2);
   splitter->setStretchFactor(1, 1);
   return a.exec();
