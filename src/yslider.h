@@ -17,7 +17,8 @@ public:
   // bool under_control(bool control);
 
 private:
-  QColor groovecolor, tracecolor, handelcolor;
+  QColor groovecolor = QColor(255, 255, 255), tracecolor = QColor(0, 0, 0),
+         handelcolor = QColor(0, 0, 0);
   QPainterPath *groovepath = nullptr, *tracepath = nullptr,
                *handelpath = nullptr;
   int w = 0, h = 0, xr = 0, yr = 0, x = 0, y = 0;

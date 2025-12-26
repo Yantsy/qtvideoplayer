@@ -11,6 +11,8 @@ qt_add_executable(${PROJECT_NAME}
     ../src/playlist.cc
     ../src/playlist.h
     ../src/label.h
+    ../src/VideoWidget.h
+    ../src/VideoWidget.cc
 )
 
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})

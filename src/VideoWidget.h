@@ -32,11 +32,10 @@ private:
   QPropertyAnimation *controlBarAnimation = nullptr;
   yslider *videoprogress = nullptr, *volumeslider = nullptr;
   QLabel *currentTimeLabel = nullptr;
-  QPushButton *playButton = nullptr, *pauseButton = nullptr,
-              *stopButton = nullptr, *muteButton = nullptr,
-              *audioTrackButton = nullptr, *subtitleTrackButton = nullptr,
-              *settingButton = nullptr, *fullscreenButton = nullptr,
-              *minimizeButton = nullptr;
+  QPushButton *playpauseButton = nullptr, *stopButton = nullptr,
+              *muteButton = nullptr, *audioTrackButton = nullptr,
+              *subtitleTrackButton = nullptr, *settingButton = nullptr,
+              *fullscreenButton = nullptr, *minimizeButton = nullptr;
   QComboBox *audioTrackComboBox = nullptr, *subtitleTrackComboBox = nullptr;
 
   QTimer *hideControlBarTimer = nullptr;
@@ -45,12 +44,13 @@ private:
   bool isPlaying;
   bool controlBarVisible;
 
-  QString fomatTime(qint64 timeMilliSeconds);
+  QString formatTime(qint64 timeMilliSeconds);
   void setupUI();
   void setupConnections();
   void updatePlayPauseButton();
   void updateControlBarPosition();
   void createStyleSheet();
+  void volumeSwitch(int volume) noexcept;
 
 private slots:
   void OnPositionChanged(qint64 position);
@@ -60,6 +60,7 @@ private slots:
   void OnSkipPreviousClicked();
   void OnSkipNextClicked();
   void OnMuteClicked();
+  void OnVolumeChanged(int volume);
   void OnAudioTrackClicked(qreal index);
   void OnSubtitleTrackClicked(qreal index);
   void OnSettingClicked();

@@ -1,4 +1,4 @@
-#include "home.h"
+#include "VideoWidget.h"
 #include "playlist.h"
 #include <QMainWindow>
 int main(int argc, char *argv[]) {
@@ -8,19 +8,17 @@ int main(int argc, char *argv[]) {
   mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
 
-  home w;
-  w.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  w.setContentsMargins(0, 0, 0, 0);
+  VideoWidget w;
   w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());
 
   MyPlayList playlist;
   // w.Linkplaylist(&playlist);
-  playlist.setQMediaPlayer(w.videoplayer);
+  playlist.setQMediaPlayer(w.mediaPlayer);
   playlist.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   playlist.setMinimumSize(mainWindow.width() - w.width(), mainWindow.height());
-  QObject::connect(w.skipnext, &QPushButton::clicked, &playlist,
+  QObject::connect(w.skipnextButton, &QPushButton::clicked, &playlist,
                    &MyPlayList::nextVideo);
-  QObject::connect(w.skiplast, &QPushButton::clicked, &playlist,
+  QObject::connect(w.skippreviousButton, &QPushButton::clicked, &playlist,
                    &MyPlayList::lastVideo);
 
   QSplitter *splitter = new QSplitter(&mainWindow);
