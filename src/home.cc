@@ -110,15 +110,6 @@ home::home(QWidget *parent) : QWidget(parent) {
                 console->geometry().x() + console->geometry().width() - 44,
                 buttony, 34, 34);
 
-  // myscrollarea->setWidgetResizable(true);
-  // playlist = new MyPlayList(this);
-  // playlist->setQMediaPlayer(videoplayer);
-  /*playlist->move(videowid->geometry().x() + videowid->geometry().width() + 10,
-                 0);
-  playlist->setMinimumSize(ww - playlist->geometry().x(), wh);
-  playlist->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);*/
-
-  // signals and slots
   // clicked events
 
   connect(yvolume, &yslider::valueChanged, this,

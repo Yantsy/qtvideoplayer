@@ -22,5 +22,7 @@ target_link_libraries(${PROJECT_NAME}  PUBLIC Qt6::Core Qt6::Widgets Qt6::Quick 
 
 target_link_libraries(${PROJECT_NAME}  PRIVATE Qt6::Multimedia Qt6::MultimediaWidgets)
 
+target_link_libraries(${PROJECT_NAME} PUBLIC avformat avcodec avutil swscale swresample)
+
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

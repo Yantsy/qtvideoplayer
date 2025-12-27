@@ -14,7 +14,6 @@ int main(int argc, char *argv[]) {
   w.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   MyPlayList playlist;
-  // w.Linkplaylist(&playlist);
   playlist.setQMediaPlayer(w.videoplayer);
   playlist.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   playlist.setMinimumSize(mainWindow.width() - w.width(), mainWindow.height());
