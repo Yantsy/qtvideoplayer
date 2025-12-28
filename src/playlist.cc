@@ -128,7 +128,7 @@ void MyPlayList::initUI() {
 
   // pages
   QWidget *pageWidget = new QWidget(this);
-  pageWidget->setFixedHeight(40);
+  pageWidget->setFixedHeight(30);
   pageWidget->setContentsMargins(0, 0, 0, 0);
   pageWidget->setStyleSheet(
       "QWidget{background-color: rgba(235, 88, 88, 80);border-radius:0px;}"
