@@ -10,6 +10,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>
+#include <QPushButton>
 #include <QTimer>
 #include <QWidget>
 
@@ -68,12 +69,11 @@ class VideoWidget : public QWidget {
 public:
   explicit VideoWidget(QWidget *parent = nullptr);
   ~VideoWidget();
-  void openFile(QUrl url);
   QComboBox *audioTrackCombo = nullptr;
   QComboBox *subtitleCombo = nullptr;
 
 private slots:
-
+  void openFile();
   void playPause();
   // void setPosition(qint64 pos);
   // void setVolume(int value);
@@ -96,6 +96,7 @@ private:
 
   QLabel *subtitleLabel = nullptr;
   QTimer *timer = nullptr;
+  QPushButton *playpauseButton = nullptr, *stopButton = nullptr;
 
   AVFormatContext *formatCtx = nullptr;
   AVCodecContext *videoCodecCtx = nullptr;

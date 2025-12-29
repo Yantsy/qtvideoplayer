@@ -1,4 +1,5 @@
 #include "DER.h"
+#include <QFileDialog>
 #include <QMessageBox>
 VideoGLWidget::VideoGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
   setMinimumSize(640, 480);
@@ -179,14 +180,31 @@ void VideoGLWidget::clearTexture() {
 }
 
 VideoWidget::VideoWidget(QWidget *parent) : QWidget(parent) {
+
+  glWidget = new VideoGLWidget(this);
+  glWidget->setMinimumSize(640, 480);
+  glWidget->move(10, 10);
   audioTrackCombo = new QComboBox(this);
   audioTrackCombo->setEnabled(false);
+  audioTrackCombo->move(10, 460);
   subtitleCombo = new QComboBox(this);
   subtitleCombo->addItem("无字幕");
   subtitleCombo->setEnabled(false);
+  subtitleCombo->move(40, 460);
 
   subtitleLabel = new QLabel("字幕", this);
   subtitleLabel->setEnabled(false);
+  subtitleLabel->move(70, 460);
+
+  playpauseButton = new QPushButton("播放", this);
+  playpauseButton->move(100, 460);
+
+  connect(playpauseButton, &QPushButton::clicked, this, &VideoWidget::openFile);
+
+  timer = new QTimer(this);
+  connect(timer, &QTimer::timeout, this, &VideoWidget::updateFrame);
+
+  initFFmpeg();
 }
 
 VideoWidget::~VideoWidget() { cleanupFFmpeg(); }
@@ -237,8 +255,10 @@ void VideoWidget::cleanupFFmpeg() {
   }
 }
 
-void VideoWidget::openFile(QUrl url) {
-  QString fileName = url.toLocalFile();
+void VideoWidget::openFile() {
+  QString fileName = QFileDialog::getOpenFileName(
+      this, "选择视频文件", "", "视频文件 (*.mp4 *.avi *.mkv *.mov)");
+
   if (fileName.isEmpty()) {
     return;
   }

@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
   MyPlayList playlist;
   playlist.setQMediaPlayer(w.videoplayer);
-  ffmpegvideowidget.openFile(playlist.source());
+  // ffmpegvideowidget.openFile(playlist.source());
   playlist.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   playlist.setMinimumSize(mainWindow.width() - w.width(), mainWindow.height());
   QObject::connect(w.skipnext, &QPushButton::clicked, &playlist,
