@@ -29,6 +29,7 @@ public:
   void setQVideoWidget(QVideoWidget *pvideowidget);
   void setAudioOutput(QAudioOutput *paudio);
   void setQMediaPlayer(QMediaPlayer *pplayer);
+  QUrl source();
 
 private:
   // funtions
@@ -40,8 +41,8 @@ private:
   void updateVideoList();
   void updatePageLabel();
   bool isVideoFile(const QString &fileName);
-
-  // widgets
+  // VideoWidget *ffmpegvideowidget = nullptr;
+  //  widgets
 
   QTreeWidget *folderTree = nullptr;
   QListWidget *videoList = nullptr;

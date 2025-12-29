@@ -1,6 +1,6 @@
 #include "playlist.h"
-#include "label.h"
 
+#include "label.h"
 MyPlayList::MyPlayList(QWidget *parent)
     : QWidget(parent), currentPage(0), itemsPerPage(20) {
 
@@ -270,6 +270,7 @@ void MyPlayList::updatePageLabel() {
   nextPageButton->setEnabled(currentPage < totalPages - 1);
 }
 
+QUrl MyPlayList::source() { return player->source(); }
 void MyPlayList::playVideo(QListWidgetItem *item) {
   QString videoPath = item->data(Qt::UserRole).toString();
   player->setSource(QUrl::fromLocalFile(videoPath));

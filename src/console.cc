@@ -1,4 +1,4 @@
-#include "polygon.h"
+#include "console.h"
 
 polygon::polygon(QWidget *parent) : QWidget(parent) {}
 

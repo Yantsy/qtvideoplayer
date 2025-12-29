@@ -4,13 +4,15 @@ qt_add_executable(${PROJECT_NAME}
     ../src/main.cc
 ../src/rbvideowidget.cc
     ../src/rbvideowidget.h    
-    ../src/polygon.cc
-    ../src/polygon.h
+    ../src/console.cc
+    ../src/console.h
     ../src/yslider.cc
     ../src/yslider.h
     ../src/playlist.cc
     ../src/playlist.h
     ../src/label.h
+    ../src/DER.cc
+    ../src/DER.h
 )
 
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
