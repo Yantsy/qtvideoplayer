@@ -144,6 +144,16 @@ home::home(QWidget *parent) : QWidget(parent) {
   });
 
   // shortcut events
+  playpause_shortcut =
+      new QShortcut(QKeySequence("Space"), play, SIGNAL(clicked()));
+  fastforward_shortcut =
+      new QShortcut(QKeySequence("Right"), yantsyslider, SLOT(forward()));
+  backward_shortcut =
+      new QShortcut(QKeySequence("Left"), yantsyslider, SLOT(backward()));
+  volumeup_shortcut =
+      new QShortcut(QKeySequence("Up"), yvolume, SLOT(forward()));
+  volumedown_shortcut =
+      new QShortcut(QKeySequence("Down"), yvolume, SLOT(backward()));
   fulscr_shortcut =
       new QShortcut(QKeySequence("F"), fullscreen, SIGNAL(clicked()));
   fulscr_shortcut_x = new QShortcut(QKeySequence("ESC"), videowidget);

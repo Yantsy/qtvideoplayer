@@ -29,6 +29,10 @@ signals:
   void dragStarted();
   void dragFinished();
 
+public slots:
+  void forward();
+  void backward();
+
 protected:
   void paintEvent(QPaintEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;

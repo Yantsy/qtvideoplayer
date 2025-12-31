@@ -1,4 +1,4 @@
-#include "DER.h"
+
 #include "home.h"
 #include "playlist.h"
 #include <QMainWindow>
@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
   mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
 
-  QSurfaceFormat format;
+  /*QSurfaceFormat format;
   format.setVersion(3, 3);
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
   VideoWidget ffmpegvideowidget;
   ffmpegvideowidget.setWindowTitle("FFmpeg播放器");
   ffmpegvideowidget.resize(800, 600);
-  ffmpegvideowidget.show();
+  ffmpegvideowidget.show();*/
 
   home w;
   w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());

@@ -34,7 +34,10 @@ private:
   QSlider *slider = nullptr, *volume = nullptr;
   QString *path = nullptr;
   QAudioOutput *audiooutput = nullptr;
-  QShortcut *fulscr_shortcut = nullptr, *fulscr_shortcut_x = nullptr;
+  QShortcut *fulscr_shortcut = nullptr, *fulscr_shortcut_x = nullptr,
+            *playpause_shortcut = nullptr, *fastforward_shortcut = nullptr,
+            *backward_shortcut = nullptr, *volumeup_shortcut = nullptr,
+            *volumedown_shortcut = nullptr;
   QPushButton *buttonset(QPushButton *button, std::string iconpath, int x,
                          int y, int w, int h);
   videoget *videowid = nullptr;

@@ -81,6 +81,19 @@ void yslider::mouseReleaseEvent(QMouseEvent *event) {
   QAbstractSlider::mouseReleaseEvent(event);
 }
 
+void yslider::forward() {
+  if (value() < maximum()) {
+    setValue(value() + 1);
+    update();
+  }
+}
+
+void yslider::backward() {
+  if (value() > minimum()) {
+    setValue(value() - 1);
+    update();
+  }
+}
 /*struct MonitorComponent : public QVideoWidget {
   QMediaPlayer *player;
   QAudioOutput *output;
