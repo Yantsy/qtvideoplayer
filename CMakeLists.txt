@@ -17,6 +17,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Qt6 COMPONENTS Quick Widgets Core Svg SvgWidgets Multimedia MultimediaWidgets OpenGL OpenGLWidgets REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
+find_package(OpenCV REQUIRED)
+
 set(FFMPEG_INCLUDE_DIR "/usr/local/ffmpeg/include")
 set(FFMPEG_LIB_DIR "/usr/local/ffmpeg/lib")
 

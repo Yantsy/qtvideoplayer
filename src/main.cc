@@ -1,23 +1,15 @@
 
 #include "home.h"
 #include "playlist.h"
+#include <Eigen/Core>
 #include <QMainWindow>
+#include <opencv2/opencv.hpp>
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
   QMainWindow mainWindow;
   mainWindow.setWindowTitle("Yantsy Video Player");
   mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
-
-  /*QSurfaceFormat format;
-  format.setVersion(3, 3);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(format);
-
-  VideoWidget ffmpegvideowidget;
-  ffmpegvideowidget.setWindowTitle("FFmpeg播放器");
-  ffmpegvideowidget.resize(800, 600);
-  ffmpegvideowidget.show();*/
 
   home w;
   w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());
