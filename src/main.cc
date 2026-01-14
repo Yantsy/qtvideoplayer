@@ -1,4 +1,5 @@
 
+#include "../videoprocessing/screen.h"
 #include "home.h"
 #include "playlist.h"
 #include <Eigen/Core>
@@ -10,6 +11,9 @@ int main(int argc, char *argv[]) {
   mainWindow.setWindowTitle("Yantsy Video Player");
   mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
+
+  screen screen;
+  screen.show();
 
   home w;
   w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());

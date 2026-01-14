@@ -21,5 +21,6 @@
     <file>resources/more_horiz.png</file>
     <file>resources/menu.png</file>
     <file>resources/download.png</file>
+     <file>resources/container.jpg</file>
     </qresource>
 </RCC>
