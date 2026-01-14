@@ -1,0 +1,13 @@
+#pragma once
+#include <QElapsedTimer>
+#include <QImage>
+#include <QMatrix4x4>
+#include <QOpenGLBuffer>
+#include <QOpenGLExtraFunctions>
+#include <QOpenGLShader>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLTexture>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLWidget>
+#include <QPixmap>
+#include <QTimer>

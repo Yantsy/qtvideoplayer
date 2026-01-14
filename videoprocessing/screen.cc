@@ -1,7 +1,7 @@
 #include "screen.h"
 screen::screen(QWidget *parent) : QOpenGLWidget(parent) {
   this->setContentsMargins(0, 0, 0, 0);
-  this->setMinimumSize(600, 600);
+  this->setMinimumSize(600, 500);
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   QTimer *frameTimer = new QTimer(this);
@@ -25,6 +25,9 @@ screen::~screen() {
   delete VBO3;
   delete VAO3;
   delete texture;
+  delete texture1;
+  delete shaderProgram2;
+  delete shaderProgram3;
   doneCurrent();
 }
 
@@ -46,6 +49,9 @@ void screen::initializeGL() {
   EBO->allocate(indices, sizeof(indices));
   */
   QImage img(":/resources/container.jpg");
+
+  QImage img1(":/resources/awesomeface.png");
+
   float vertices[] = {0.0f, 0.5f, 0.0f, -0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.0f};
 
   float vertices1[] = {0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f};
@@ -94,8 +100,9 @@ void main()
   layout(location=2) in vec2 aTexCoord;
   out vec3 ourColor;
   out vec2 TexCoord;
+  uniform mat4 transform;
   void main(){
-  gl_Position =vec4(aPos,1.0);
+  gl_Position =transform*vec4(aPos,1.0);
   ourColor =aColor;
   TexCoord =aTexCoord;})";
 
@@ -105,8 +112,9 @@ void main()
   in vec2 TexCoord;
   in vec3 ourColor;
   uniform sampler2D texture; 
+  uniform sampler2D texture1;
   void main(){
-  FragColor =texture2D(texture,TexCoord)*vec4(ourColor,1.0);})";
+  FragColor =mix(texture2D(texture1,TexCoord),texture2D(texture,TexCoord),0.2)*vec4(ourColor,1.0);})";
 
   const char *fragmentShaderSource = R"(
 #version 330 core
@@ -253,23 +261,25 @@ void main()
   vertexShader->compileSourceCode(vertexShaderSource3);
   fragmentShader->compileSourceCode(fragmentShaderSource5);
   texture = new QOpenGLTexture(img);
+  texture1 = new QOpenGLTexture(img1);
 
-  shaderProgram->addShader(vertexShader);
-  shaderProgram->addShader(fragmentShader);
-  shaderProgram->link();
-  shaderProgram->bind();
+  shaderProgram3 = new QOpenGLShaderProgram();
+  shaderProgram3->addShader(vertexShader);
+  shaderProgram3->addShader(fragmentShader);
+  shaderProgram3->link();
+  shaderProgram3->bind();
 
-  shaderProgram->setAttributeBuffer(0, GL_FLOAT, 0, 3, 8 * sizeof(float));
-  shaderProgram->enableAttributeArray(0);
-  shaderProgram->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 3,
-                                    8 * sizeof(float));
-  shaderProgram->enableAttributeArray(1);
-  shaderProgram->setAttributeBuffer(2, GL_FLOAT, 6 * sizeof(float), 2,
-                                    8 * sizeof(float));
-  shaderProgram->enableAttributeArray(2);
+  shaderProgram3->setAttributeBuffer(0, GL_FLOAT, 0, 3, 8 * sizeof(float));
+  shaderProgram3->enableAttributeArray(0);
+  shaderProgram3->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 3,
+                                     8 * sizeof(float));
+  shaderProgram3->enableAttributeArray(1);
+  shaderProgram3->setAttributeBuffer(2, GL_FLOAT, 6 * sizeof(float), 2,
+                                     8 * sizeof(float));
+  shaderProgram3->enableAttributeArray(2);
 
   VAO3->release();
-  shaderProgram->release();
+  shaderProgram3->release();
 }
 
 void screen::resizeGL(int w, int h) {
@@ -279,13 +289,6 @@ void screen::resizeGL(int w, int h) {
 
 void screen::paintGL() {
   glClear(GL_COLOR_BUFFER_BIT);
-
-  shaderProgram->bind();
-  VAO->bind();
-  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-  VAO->release();
-  shaderProgram->release();
 
   shaderProgram1->bind();
   VAO1->bind();
@@ -305,13 +308,40 @@ void screen::paintGL() {
   VAO2->release();
   shaderProgram2->release();
 
-  shaderProgram->bind();
+  shaderProgram3->bind();
   VAO3->bind();
   texture->bind(0);
+  texture1->bind(1);
+  const float pi = std::acos(-1);
+  const float a = std::cos(180.0f / 180 * pi);
+  const float b = std::sin(180.0f / 180 * pi);
+  float aspectRatio =
+      static_cast<float>(width()) / static_cast<float>(height());
+  float ratio = 1.0 / aspectRatio;
+  QMatrix4x4 translate = {1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0,
+                          0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0};
+  QMatrix4x4 rotatez = {a, -b, 0, 0, b, a, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+
+  QMatrix4x4 ortho = {ratio, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.0,
+                      0.0,   0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+  rotatez = translate * rotatez;
+  // rotatez.ortho(-1.0 * aspectRatio, 1.0 * aspectRatio, -1.0, 1.0, -1.0, 1.0);
+  rotatez = ortho * rotatez;
+  shaderProgram3->setUniformValue("transform", rotatez);
+  shaderProgram3->setUniformValue("texture", 0);
+  shaderProgram3->setUniformValue("texture1", 1);
 
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
   texture->release();
+  texture1->release();
   VAO3->release();
+  shaderProgram3->release();
+
+  shaderProgram->bind();
+  VAO->bind();
+  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+  VAO->release();
   shaderProgram->release();
 }

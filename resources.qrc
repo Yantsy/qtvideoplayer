@@ -22,5 +22,6 @@
     <file>resources/menu.png</file>
     <file>resources/download.png</file>
      <file>resources/container.jpg</file>
+     <file>resources/awesomeface.png</file>
     </qresource>
 </RCC>

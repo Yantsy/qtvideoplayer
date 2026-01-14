@@ -31,8 +31,9 @@ private:
   QOpenGLVertexArrayObject *VAO = nullptr, *VAO1 = nullptr, *VAO2 = nullptr,
                            *VAO3 = nullptr;
   QOpenGLShaderProgram *shaderProgram = nullptr, *shaderProgram1 = nullptr,
-                       *shaderProgram2 = nullptr;
-  QOpenGLTexture *texture = nullptr;
+                       *shaderProgram2 = nullptr, *shaderProgram3 = nullptr,
+                       *shaderProgram4 = nullptr;
+  QOpenGLTexture *texture = nullptr, *texture1 = nullptr;
 
   QElapsedTimer timer;
 };
