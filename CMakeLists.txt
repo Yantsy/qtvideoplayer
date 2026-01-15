@@ -47,6 +47,8 @@ qt_add_executable(${PROJECT_NAME}
     ../src/label.h
     ../videoprocessing/screen.cc
     ../videoprocessing/screen.h
+    ../videoprocessing/player.cc
+    ../videoprocessing/player.h
 )
 
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
