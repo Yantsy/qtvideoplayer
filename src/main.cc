@@ -1,6 +1,5 @@
 
 #include "../videoprocessing/player.h"
-#include "../videoprocessing/screen.h"
 #include "home.h"
 #include "playlist.h"
 #include <Eigen/Core>
@@ -13,8 +12,6 @@ int main(int argc, char *argv[]) {
   mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
 
-  screen screen;
-  screen.show();
   MyPlayer player;
   player.show();
 

@@ -2,20 +2,20 @@
 
 MyPlayer::MyPlayer(QWidget *parent) noexcept : QOpenGLWidget(parent) {
   this->setContentsMargins(0, 0, 0, 0);
-  this->resize(600, 600);
+  this->setMinimumSize(400, 400);
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 MyPlayer::~MyPlayer() {}
 
 void MyPlayer::initializeGL() {
-  /*constexpr auto m_imageSource = ":/resources/waterlilies.jpg";
-  const float imageWidth = QImage(m_imageSource).width();
-  const float imageHeight = QImage(m_imageSource).height();*/
-  const float m_vertices[] = {1.0f,  screenVerseRatio,  0.0f, 1.0f, 1.0f,
-                              1.0f,  -screenVerseRatio, 0.0f, 1.0f, 0.0f,
-                              -1.0f, -screenVerseRatio, 0.0f, 0.0f, 0.0f,
-                              -1.0f, screenVerseRatio,  0.0f, 0.0f, 1.0f};
+  constexpr auto m_imageSource = ":/resources/blackswan.jpg";
+  imageWidth = QImage(m_imageSource).width();
+  imageHeight = QImage(m_imageSource).height();
+
+  const float m_vertices[] = {1.0f, 1,     0.0f, 1.0f,  1.0f, 1.0f, -1,
+                              0.0f, 1.0f,  0.0f, -1.0f, -1,   0.0f, 0.0f,
+                              0.0f, -1.0f, 1,    0.0f,  0.0f, 1.0f};
 
   const unsigned int m_indices[] = {0, 1, 2, 0, 2, 3};
 
@@ -71,7 +71,7 @@ void MyPlayer::initializeGL() {
                                        5 * sizeof(float));
   m_shaderProgram0->enableAttributeArray(1);
 
-  m_texture0 = new QOpenGLTexture(QImage(MyImage::location));
+  m_texture0 = new QOpenGLTexture(QImage(m_imageSource));
 
   m_vao0->release();
   m_shaderProgram0->release();
@@ -83,8 +83,6 @@ void MyPlayer::paintGL() {
   m_vao0->bind();
   m_texture0->bind(0);
   m_shaderProgram0->setUniformValue("texture0", 0);
-  const float imageWidth = QImage(MyImage::location).width();
-  const float imageHeight = QImage(MyImage::location).height();
   const float pi = std::acos(-1);
   const float a = std::cos(pi);
   const float b = std::sin(pi);
@@ -92,14 +90,54 @@ void MyPlayer::paintGL() {
       static_cast<float>(width()) / static_cast<float>(height());
   const float windowVerseRatio = 1.0f / windowAspectRatio;
   QMatrix4x4 rotation = {a, -b, 0, 0, b, a, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-  QMatrix4x4 ortho;
-  ortho.ortho(-1.0f * windowAspectRatio, 1.0f * windowAspectRatio,
-              -1.0f * windowVerseRatio, 1.0f * windowVerseRatio, -1.0f, 1.0f);
-  QMatrix4x4 transform = ortho * rotation;
+  QMatrix4x4 mirror = {1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  QMatrix4x4 scale = imageScaleMatrix(imageWidth, imageHeight);
+  QMatrix4x4 ortho = {windowVerseRatio,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      -1.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0};
+  // ortho.ortho(-1.0f * windowAspectRatio, 1.0f * windowAspectRatio,
+  //  -1.0f * windowVerseRatio, 1.0f * windowVerseRatio, -1.0f, 1.0f);
+  QMatrix4x4 transform = ortho * scale * mirror;
   m_shaderProgram0->setUniformValue("transform", transform);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
   m_texture0->release();
   m_vao0->release();
   m_shaderProgram0->release();
+}
+
+QMatrix4x4 MyPlayer::imageScaleMatrix(const float imgWidth,
+                                      const float imgHeight) {
+  QMatrix4x4 scaleMatrix;
+  const float imgAspectRatio = imgWidth / imgHeight;
+  const float imgVerseRatio = 1.0f / imgAspectRatio;
+  if (imgAspectRatio >= 1.0f) {
+    scaleMatrix = {1, 0, 0, 0, 0, imgVerseRatio, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  } else {
+    scaleMatrix = {imgAspectRatio, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  };
+  // std::cout << imgWidth << " " << imgHeight << std::endl;
+  return scaleMatrix;
+}
+
+QMatrix4x4 MyPlayer::windowScaleMatrix(const float winWidth,
+                                       const float winHeight) {
+  QMatrix4x4 orthoProjection;
+  const float winAspectRatio = winWidth / winHeight;
+  const float winVerseRatio = 1.0f / winAspectRatio;
+
+  return orthoProjection;
 }

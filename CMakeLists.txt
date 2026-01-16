@@ -45,8 +45,6 @@ qt_add_executable(${PROJECT_NAME}
     ../src/playlist.cc
     ../src/playlist.h
     ../src/label.h
-    ../videoprocessing/screen.cc
-    ../videoprocessing/screen.h
     ../videoprocessing/player.cc
     ../videoprocessing/player.h
 )
