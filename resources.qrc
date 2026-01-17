@@ -1,26 +1,28 @@
+<!DOCTYPE RCC>
 <RCC>
-    <qresource prefix="/">
+  <qresource prefix="/">
     <file>resources/addfile.png</file>
-     <file>resources/fullscreen.png</file>
-     <file>resources/outview.png</file>
-     <file>resources/pause.png</file>
-     <file>resources/play_arrow.png</file>
-     <file>resources/playpause.png</file>
+    <file>resources/fullscreen.png</file>
+    <file>resources/outview.png</file>
+    <file>resources/pause.png</file>
+    <file>resources/play_arrow.png</file>
+    <file>resources/playpause.png</file>
     <file>resources/setting.png</file>
     <file>resources/skip_next.png</file>
-     <file>resources/skip_previous.png</file>
-      <file>resources/sound.png</file>
-      <file>resources/subtitle.png</file>
+    <file>resources/skip_previous.png</file>
+    <file>resources/sound.png</file>
+    <file>resources/subtitle.png</file>
     <file>resources/volume.png</file>
-   <file>resources/amexicanvaquero.jpg</file>
-   <file>resources/waterlilies.jpg</file>
-   <file>resources/blackswan.jpg</file>
-   <file>resources/fast_forward.png</file>
-   <file>resources/fast_rewind.png</file>
+    <file>resources/amexicanvaquero.jpg</file>
+    <file>resources/waterlilies.jpg</file>
+    <file>resources/blackswan.jpg</file>
+    <file>resources/fast_forward.png</file>
+    <file>resources/fast_rewind.png</file>
     <file>resources/inbox.png</file>
     <file>resources/more_horiz.png</file>
     <file>resources/menu.png</file>
     <file>resources/download.png</file>
-     <file>resources/b.png</file>
-    </qresource>
+    <file>resources/b.png</file>
+    <file>resources/aichan.jpg</file>
+  </qresource>
 </RCC>

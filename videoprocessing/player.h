@@ -22,6 +22,7 @@ protected:
   void initializeGL() override;
   void resizeGL(int w, int h) override;
   void paintGL() override;
+  // void resizeEvent(QResizeEvent *event) override;
 
 private:
   QOpenGLVertexArrayObject *m_vao0 = nullptr, *m_vao1 = nullptr;
@@ -40,4 +41,5 @@ private:
 
   QMatrix4x4 imageScaleMatrix(float imgWidth, float imgHeight);
   QMatrix4x4 windowScaleMatrix(float winWidth, float winHeight);
+  QMatrix4x4 transformMatrix(float ww, float wh, float iw, float ih);
 };

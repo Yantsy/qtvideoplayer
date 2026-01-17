@@ -2,14 +2,14 @@
 
 MyPlayer::MyPlayer(QWidget *parent) noexcept : QOpenGLWidget(parent) {
   this->setContentsMargins(0, 0, 0, 0);
-  this->setMinimumSize(400, 400);
+  this->setMinimumSize(600, 500);
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 MyPlayer::~MyPlayer() {}
 
 void MyPlayer::initializeGL() {
-  constexpr auto m_imageSource = ":/resources/blackswan.jpg";
+  constexpr auto m_imageSource = ":/resources/aichan.jpg";
   imageWidth = QImage(m_imageSource).width();
   imageHeight = QImage(m_imageSource).height();
 
@@ -72,6 +72,9 @@ void MyPlayer::initializeGL() {
   m_shaderProgram0->enableAttributeArray(1);
 
   m_texture0 = new QOpenGLTexture(QImage(m_imageSource));
+  m_texture0->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+  m_texture0->setMagnificationFilter(QOpenGLTexture::Linear);
+  m_texture0->setWrapMode(QOpenGLTexture::ClampToEdge);
 
   m_vao0->release();
   m_shaderProgram0->release();
@@ -92,31 +95,75 @@ void MyPlayer::paintGL() {
   QMatrix4x4 rotation = {a, -b, 0, 0, b, a, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   QMatrix4x4 mirror = {1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
   QMatrix4x4 scale = imageScaleMatrix(imageWidth, imageHeight);
-  QMatrix4x4 ortho = {windowVerseRatio,
-                      0.0,
-                      0.0,
-                      0.0,
-                      0.0,
-                      1.0,
-                      0.0,
-                      0.0,
-                      0.0,
-                      0.0,
-                      -1.0,
-                      0.0,
-                      0.0,
-                      0.0,
-                      0.0,
-                      1.0};
+  QMatrix4x4 ortho = windowScaleMatrix(width(), height());
   // ortho.ortho(-1.0f * windowAspectRatio, 1.0f * windowAspectRatio,
   //  -1.0f * windowVerseRatio, 1.0f * windowVerseRatio, -1.0f, 1.0f);
-  QMatrix4x4 transform = ortho * scale * mirror;
+  // QMatrix4x4 transform = ortho * scale * mirror;
+  QMatrix4x4 transform =
+      transformMatrix(width(), height(), imageWidth, imageHeight);
   m_shaderProgram0->setUniformValue("transform", transform);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
   m_texture0->release();
   m_vao0->release();
   m_shaderProgram0->release();
+}
+
+QMatrix4x4 MyPlayer::transformMatrix(const float ww, const float wh,
+                                     const float iw, const float ih) {
+
+  float imageRatio = iw / ih;
+  // float imageVerseRatio = 1.0f / imageRatio;
+  float windowRatio = ww / wh;
+  float windowVerseRatio = 1.0f / windowRatio;
+  const float pi = std::acos(-1);
+  const float a = std::cos(pi);
+  const float b = std::sin(pi);
+  // const float windowAspectRatio =
+  // static_cast<float>(width()) / static_cast<float>(height());
+  // const float windowVerseRatio = 1.0f / windowAspectRatio;
+  QMatrix4x4 rotation = {a, -b, 0, 0, b, a, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  QMatrix4x4 mirror = {1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  QMatrix4x4 scale = imageScaleMatrix(imageWidth, imageHeight);
+  QMatrix4x4 ortho = windowScaleMatrix(width(), height());
+  QMatrix4x4 transformMatrix;
+  QMatrix4x4 betweenMatrix = ortho * scale * mirror;
+  QMatrix4x4 adjustMatrix;
+  if (imageRatio >= 1.0f) {
+    if (windowRatio >= 1.0f) {
+      transformMatrix = betweenMatrix;
+
+    } else {
+      adjustMatrix = {windowRatio, 0, 0, 0, 0, windowRatio, 0, 0,
+                      0,           0, 1, 0, 0, 0,           0, 1};
+
+      transformMatrix = adjustMatrix * betweenMatrix;
+    }
+  } else {
+    if (windowRatio >= 1.0f) {
+      adjustMatrix = {windowVerseRatio,
+                      0,
+                      0,
+                      0,
+                      0,
+                      windowVerseRatio,
+                      0,
+                      0,
+                      0,
+                      0,
+                      1,
+                      0,
+                      0,
+                      0,
+                      0,
+                      1};
+
+      transformMatrix = adjustMatrix * betweenMatrix;
+    } else {
+      transformMatrix = betweenMatrix;
+    }
+  }
+  return transformMatrix;
 }
 
 QMatrix4x4 MyPlayer::imageScaleMatrix(const float imgWidth,
@@ -135,9 +182,105 @@ QMatrix4x4 MyPlayer::imageScaleMatrix(const float imgWidth,
 
 QMatrix4x4 MyPlayer::windowScaleMatrix(const float winWidth,
                                        const float winHeight) {
-  QMatrix4x4 orthoProjection;
+  QMatrix4x4 orthoMatrix;
   const float winAspectRatio = winWidth / winHeight;
   const float winVerseRatio = 1.0f / winAspectRatio;
-
-  return orthoProjection;
+  if (winWidth <= winHeight) {
+    orthoMatrix = {winVerseRatio, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.0,
+                   0.0,           0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+  } else {
+    orthoMatrix = {1.0, 0.0, 0.0, 0.0, 0.0,  winAspectRatio,
+                   0.0, 0.0, 0.0, 0.0, -1.0, 0.0,
+                   0.0, 0.0, 0.0, 1.0};
+  }
+  return orthoMatrix;
 }
+/*为什么写成一个矩阵就不行了？
+QMatrix4x4 MyPlayer::transformMatrix(const float ww, const float wh,
+                                     const float iw, const float ih) {
+  float imageRatio = iw / ih;
+  float imageVerseRatio = 1.0f / imageRatio;
+  float windowRatio = ww / wh;
+  float windowVerseRatio = 1.0f / windowRatio;
+  QMatrix4x4 transformMatrix;
+  QMatrix4x4 adjustMatrix;
+  if (imageRatio >= 1.0f) {
+    if (windowRatio >= 1.0f) {
+      transformMatrix = {ww / 2, 0,
+                         0,      ww / 2,
+                         0,      -ww / 2 * imageVerseRatio,
+                         0,      -ww / 2 * imageVerseRatio,
+                         0,      0,
+                         -1,     0,
+                         0,      0,
+                         0,      1};
+    } else {
+      adjustMatrix = {windowRatio, 0, 0, 0, 0, windowRatio, 0, 0,
+                      0,           0, 1, 0, 0, 0,           0, 1};
+      transformMatrix = {wh / 2, 0,
+                         0,      wh / 2,
+                         0,      -wh / 2 * imageVerseRatio,
+                         0,      -wh / 2 * imageVerseRatio,
+                         0,      0,
+                         -1,     0,
+                         0,      0,
+                         0,      1};
+      transformMatrix = adjustMatrix * transformMatrix;
+    }
+  } else {
+    if (windowRatio >= 1.0f) {
+      adjustMatrix = {windowVerseRatio,
+                      0,
+                      0,
+                      0,
+                      0,
+                      windowVerseRatio,
+                      0,
+                      0,
+                      0,
+                      0,
+                      1,
+                      0,
+                      0,
+                      0,
+                      0,
+                      1};
+      transformMatrix = {ww / 2 * imageRatio,
+                         0,
+                         0,
+                         ww / 2 * imageRatio,
+                         0,
+                         -ww / 2,
+                         0,
+                         -ww / 2,
+                         0,
+                         0,
+                         -1,
+                         0,
+                         0,
+                         0,
+                         0,
+                         1};
+      transformMatrix = adjustMatrix * transformMatrix;
+    } else {
+      transformMatrix = {wh / 2 * imageRatio,
+                         0,
+                         0,
+                         wh / 2 * imageRatio,
+                         0,
+                         -wh / 2,
+                         0,
+                         -wh / 2,
+                         0,
+                         0,
+                         -1,
+                         0,
+                         0,
+                         0,
+                         0,
+                         1};
+    }
+  }
+
+  return transformMatrix;
+}*/
