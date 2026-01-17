@@ -86,19 +86,6 @@ void MyPlayer::paintGL() {
   m_vao0->bind();
   m_texture0->bind(0);
   m_shaderProgram0->setUniformValue("texture0", 0);
-  const float pi = std::acos(-1);
-  const float a = std::cos(pi);
-  const float b = std::sin(pi);
-  const float windowAspectRatio =
-      static_cast<float>(width()) / static_cast<float>(height());
-  const float windowVerseRatio = 1.0f / windowAspectRatio;
-  QMatrix4x4 rotation = {a, -b, 0, 0, b, a, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-  QMatrix4x4 mirror = {1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-  QMatrix4x4 scale = imageScaleMatrix(imageWidth, imageHeight);
-  QMatrix4x4 ortho = windowScaleMatrix(width(), height());
-  // ortho.ortho(-1.0f * windowAspectRatio, 1.0f * windowAspectRatio,
-  //  -1.0f * windowVerseRatio, 1.0f * windowVerseRatio, -1.0f, 1.0f);
-  // QMatrix4x4 transform = ortho * scale * mirror;
   QMatrix4x4 transform =
       transformMatrix(width(), height(), imageWidth, imageHeight);
   m_shaderProgram0->setUniformValue("transform", transform);
