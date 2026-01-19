@@ -2,3 +2,4 @@ build/
 .cache/
 videos/
 .json/
+.excalidraw/
