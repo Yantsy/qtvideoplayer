@@ -45,20 +45,34 @@ qt_add_executable(${PROJECT_NAME}
     ../src/playlist.cc
     ../src/playlist.h
     ../src/label.h
-    ../videoprocessing/player.cc
-    ../videoprocessing/player.h
+    ../videoprocessing/glwidget.cc
+    ../videoprocessing/glwidget.h
 )
-
+qt_add_executable(test 
+../videoprocessing/test.cc
+../videoprocessing/demuxer.h
+../videoprocessing/decoder.h
+../videoprocessing/glwidget.h
+../videoprocessing/glwidget.cc
+)
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
 
 target_sources(${PROJECT_NAME} PRIVATE ../resources.qrc)
 
+qt_add_resources({test ../resources.qrc})
+
+target_sources(test PRIVATE ../resources.qrc)
+
     
 target_link_libraries(${PROJECT_NAME}  PUBLIC Qt6::Core Qt6::Widgets Qt6::Quick Qt6::Svg Qt6::SvgWidgets Qt6::OpenGL Qt6::OpenGLWidgets OpenGL::GL OpenGL::GLU)
+
+target_link_libraries(test  PUBLIC Qt6::Core Qt6::Widgets Qt6::Quick Qt6::Svg Qt6::SvgWidgets Qt6::OpenGL Qt6::OpenGLWidgets OpenGL::GL OpenGL::GLU)
 
 target_link_libraries(${PROJECT_NAME}  PRIVATE Qt6::Multimedia Qt6::MultimediaWidgets)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC avformat avcodec avutil swscale swresample)
+
+target_link_libraries(test PUBLIC avformat avcodec avutil swscale swresample)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 

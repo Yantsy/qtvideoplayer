@@ -1,10 +1,12 @@
 
-#include "../videoprocessing/player.h"
+#include "../videoprocessing/glwidget.h"
 #include "home.h"
 #include "playlist.h"
-#include <Eigen/Core>
+
 #include <QMainWindow>
-#include <opencv2/opencv.hpp>
+
+// #include <Eigen/Core>
+// #include <opencv2/opencv.hpp>
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
   QMainWindow mainWindow;
@@ -12,8 +14,8 @@ int main(int argc, char *argv[]) {
   mainWindow.setMinimumSize(920, 500);
   mainWindow.setContentsMargins(0, 0, 0, 0);
 
-  MyPlayer player;
-  player.show();
+  // MyGLWidget player;
+  // player.show();
 
   home w;
   w.setMinimumSize(mainWindow.width() * 0.66666, mainWindow.height());

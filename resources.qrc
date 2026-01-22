@@ -24,5 +24,6 @@
     <file>resources/download.png</file>
     <file>resources/b.png</file>
     <file>resources/aichan.jpg</file>
+    <file>resources/c.mp4</file>
   </qresource>
 </RCC>
