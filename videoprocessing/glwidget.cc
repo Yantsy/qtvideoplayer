@@ -13,8 +13,8 @@ MyGLWidget::~MyGLWidget() {
   delete m_vao1;
   delete m_shaderProgram0;
   delete m_shaderProgram1;
-  delete m_vbo0;
-  delete m_ebo0;
+  // delete m_vbo0;
+  // delete m_ebo0;
   delete m_texture0;
   delete m_texture1;
   delete m_textureY;
@@ -33,7 +33,7 @@ void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
   bool needRecreate = !m_textureY || !m_textureY->isCreated() ||
                       m_textureY->width() != w || m_textureY->height() != h;
   makeCurrent();
-
+  // 更新纹理
   if (needRecreate) {
 
     if (m_textureY) {
@@ -68,7 +68,7 @@ void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
     m_textureV->allocateStorage();
   }
 
-  // 关键修复：设置像素存储对齐，处理 linesize
+  // 处理linesize，如果不处理，读取数据的时候会出错
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glPixelStorei(GL_UNPACK_ROW_LENGTH, strideY); // Y 平面的行长度
 
@@ -135,14 +135,14 @@ void MyGLWidget::initializeGL() {
   m_vao0->create();
   m_vao0->bind();
 
-  m_vbo0 = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+  auto m_vbo0 = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
   m_vbo0->create();
   m_vbo0->bind();
   m_vbo0->allocate(m_vertices, sizeof(m_vertices));
 
   /*const std::unique_ptr<QOpenGLBuffer> m_ebo0 =
       std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);*/
-  m_ebo0 = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
+  auto m_ebo0 = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
   m_ebo0->create();
   m_ebo0->bind();
   m_ebo0->allocate(m_indices, sizeof(m_indices));
@@ -190,6 +190,7 @@ void MyGLWidget::initializeGL() {
 void MyGLWidget::resizeGL(const int w, const int h) { glViewport(0, 0, w, h); }
 void MyGLWidget::paintGL() {
   paintCount = paintCount + 1;
+  // 造成内存泄露的罪魁祸首
   if (!m_textureY || !m_textureY->isCreated() || !m_textureU ||
       !m_textureU->isCreated() || !m_textureV || !m_textureV->isCreated()) {
     return;
@@ -221,7 +222,7 @@ void MyGLWidget::paintGL() {
 QMatrix4x4 MyGLWidget::transformMatrix(const float ww, const float wh,
                                        const float iw, const float ih) {
   if (ih <= 0.0f || wh <= 0.0f) {
-    return QMatrix4x4(); // 返回单位矩阵
+    return QMatrix4x4(); // 异常情况返回单位矩阵
   }
   float imageRatio = iw / ih;
   // float imageVerseRatio = 1.0f / imageRatio;

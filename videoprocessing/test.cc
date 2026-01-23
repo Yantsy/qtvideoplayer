@@ -33,8 +33,8 @@ int main(int argc, char *argv[]) {
   uint8_t vPlane;
   int frmWidth = 0;
   int frmHeight = 0;
-  int lineSize0 = 0;
-  int lineSize1 = 0;
+  int lineSizeY = 0;
+  int lineSizeUV = 0;
   int amtPkt = 0;
   int amtFrm = 0;
 
@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
         auto frmHeight = myFrame->height;
         auto lineSize0 = myFrame->linesize[0];
         auto lineSize1 = myFrame->linesize[1];
+
         ffmpegvideowidget.renderWithOpenGL(yPlane, uPlane, vPlane, frmWidth,
                                            frmHeight, lineSize0, lineSize1);
         QCoreApplication::processEvents();

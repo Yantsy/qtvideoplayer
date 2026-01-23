@@ -36,7 +36,7 @@ private:
                  *m_textureY = nullptr, *m_textureU = nullptr,
                  *m_textureV = nullptr;
 
-  QOpenGLBuffer *m_vbo0 = nullptr, *m_ebo0 = nullptr;
+  // QOpenGLBuffer *m_vbo0 = nullptr, *m_ebo0 = nullptr;
   QMatrix4x4 transform;
   const float screenAspectRatio = 16.0f / 9.0f;
   const float screenVerseRatio = 9.0f / 16.0f;
