@@ -54,7 +54,9 @@
 
 #### 1.拷贝AVCodecParameters至AVCodecContext
 
+#### 2.linesize
 
+详情见<ref https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride >
 
 #### 2.YUV数据的存储
 
