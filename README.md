@@ -56,7 +56,7 @@
 
 #### 2.linesize
 
-详情见<ref https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride >
+详情见 [Image Stride](https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride)
 
 #### 2.YUV数据的存储
 
