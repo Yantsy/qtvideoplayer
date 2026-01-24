@@ -25,8 +25,9 @@ MyGLWidget::~MyGLWidget() {
   std::cout << "RenderCount: " << renderCount << "\n" << std::endl;
 }
 
-void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
-                                  int h, int strideY, int strideUV) noexcept {
+void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, unsigned char *V,
+                                  int w, int h, int strideY,
+                                  int strideUV) noexcept {
   renderCount = renderCount + 1;
   imageWidth = w;
   imageHeight = h;
@@ -45,7 +46,7 @@ void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
     m_textureY->setFormat(QOpenGLTexture::R8_UNorm);
     m_textureY->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     m_textureY->setMagnificationFilter(QOpenGLTexture::Linear);
-    // m_textureY->allocateStorage();
+    m_textureY->allocateStorage();
     if (m_textureU) {
       m_textureU->destroy();
     } else {
@@ -55,7 +56,7 @@ void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
     m_textureU->setFormat(QOpenGLTexture::R8_UNorm);
     m_textureU->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     m_textureU->setMagnificationFilter(QOpenGLTexture::Linear);
-    // m_textureU->allocateStorage();
+    m_textureU->allocateStorage();
     if (m_textureV) {
       m_textureV->destroy();
     } else {

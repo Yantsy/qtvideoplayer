@@ -18,6 +18,10 @@ int main(int argc, char *argv[]) {
   const auto FormatCtx = myDemuxer.alloc();
 
   auto filePath = QFileDialog::getOpenFileName();
+  if (filePath.isEmpty()) {
+    ffmpegvideowidget.close();
+    return 0;
+  }
   myDemuxer.open(filePath.toStdString().c_str(), FormatCtx);
 
   auto vsIndex = myDemuxer.findVSInfo(FormatCtx);
@@ -60,7 +64,8 @@ int main(int argc, char *argv[]) {
         double frameTimeSeconds = (pts - firstPts) * timeBase;
         auto yPlane = myFrame->data[0];
         auto uPlane = myFrame->data[1];
-        auto vPlane = myFrame->data[2];
+        unsigned char *vPlane = myFrame->data[2];
+
         auto frmWidth = myFrame->width;
         auto frmHeight = myFrame->height;
         auto lineSize0 = myFrame->linesize[0];

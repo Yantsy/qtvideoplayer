@@ -18,7 +18,7 @@ public:
   explicit MyGLWidget(QWidget *parent = nullptr) noexcept;
   ~MyGLWidget();
 
-  void renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w, int h,
+  void renderWithOpenGL(uint8_t *Y, uint8_t *U, unsigned char *V, int w, int h,
                         int strideY, int strideUV) noexcept;
 
 protected:
