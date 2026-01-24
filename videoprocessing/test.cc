@@ -2,6 +2,7 @@
 #include "demuxer.h"
 #include "glwidget.h"
 #include <QApplication>
+#include <QFileDialog>
 #include <QWidget>
 #include <chrono>
 #include <thread>
@@ -15,9 +16,9 @@ int main(int argc, char *argv[]) {
   MyDemuxer myDemuxer;
   MyDecoder myDecoder;
   const auto FormatCtx = myDemuxer.alloc();
-  myDemuxer.open("/home/yantsy/Documents/videoplayer/videos/l2/"
-                 "【艾尔登法环】群星皆是归属，我来接你了公主.mp4",
-                 FormatCtx);
+
+  auto filePath = QFileDialog::getOpenFileName();
+  myDemuxer.open(filePath.toStdString().c_str(), FormatCtx);
 
   auto vsIndex = myDemuxer.findVSInfo(FormatCtx);
   const auto decoder = myDecoder.findDec(FormatCtx, vsIndex);

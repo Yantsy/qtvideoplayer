@@ -25,7 +25,13 @@
 
 #### 2.状态机
 
-#### 3.顶点着色器与MVP矩阵
+#### 3.顶点着色器与变换矩阵
+
+三角形的顶点是顶点（一个三维坐标）着色器处理的最小单元，两个三角形拼在一起就是一个矩阵——这正是我们播放视频所需要的。你可以创建两个数组分别存储它们，也可以创建一个索引数组用来标记三角形的顶点，通过读取索引数组，获取对应的顶点，这样我们只需要创建一个数组从右上角的顶点开始按照顺时针方向存储矩形的四个顶点，两个三角形重合的点索引两次即可。
+
+接着我们需要创建vbo(vertex buffer object)，将顶点传入顶点着色器中，通过设置顶点属性（从哪里开始读，读的是什么类型的数据，间隔多少个字节读一次等等），顶点着色器便知道如何读取这些顶点。编译着色器，经过顶点着色器的处理，所有顶点的（x,y）都会被转化为NDC（\[-1,1\]*\[-1,1\]）上的坐标。先将视频的顶点组成的矩形完全填满，那么我们便可以将NDC看作窗口，同时将视频的每一帧画面看作一个2*2的中心对称矩形，这将是我们调节窗口尺寸，以及对视频画面进行各种变换的起点。
+
+#### 4.VAO与ShaderProgram
 
 #### 4.片元着色器与纹理
 
@@ -46,13 +52,25 @@
 
 ### 数据流的管理
 
-#### 1.拷贝AVCodec参数至AVCodecContext
+#### 1.拷贝AVCodecParameters至AVCodecContext
+
+
 
 #### 2.YUV数据的存储
 
 ### 内存管理
 
 #### 1.未及时更新texture
+
+若你看到如下报错：
+
+>QOpenGLTexture::setFormat(): Cannot change format once storage has been allocatedCannot resize a texture that already has storage allocated.To do so destroy() the texture and then create() and setSize()
+>
+>Cannot set mip levels on a texture that already has storage allocated.To do so, destroy() the texture and then create() and setMipLevels()
+
+导致该报错的原因是，你将从AVPacket中读出的AVFrame data 存入纹理中，但是却忘记了及时销毁上一帧纹理，并为当前帧创建纹理，当前帧无法被存储，也无法进行设置filter等操作。
+
+为了看懂该报错，我们需要了解纹理是如何被读取，创建和存储的。
 
 #### 2.未在GPU中给texture申请内存导致paintGL崩溃
 
