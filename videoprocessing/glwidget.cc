@@ -3,7 +3,7 @@
 
 MyGLWidget::MyGLWidget(QWidget *parent) noexcept : QOpenGLWidget(parent) {
   this->setContentsMargins(0, 0, 0, 0);
-  this->setMinimumSize(600, 500);
+  this->setMinimumSize(400, 500);
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
@@ -68,7 +68,7 @@ void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
     m_textureV->allocateStorage();
   }
 
-  // 处理linesize，如果不处理，读取数据的时候会出错
+  // 处理linesize，如果不处理，读取数据的时候会出错,导致渲染出来的画面很奇怪
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glPixelStorei(GL_UNPACK_ROW_LENGTH, strideY); // Y 平面的行长度
 
@@ -219,6 +219,8 @@ void MyGLWidget::paintGL() {
   m_shaderProgram0->release();
 }
 
+// 图像原本被完全填充在窗口中，通过mirror进行翻转，通过scale缩放回原来的比例，再通过正交投影消除窗口尺寸的影响(其实也相当于scale，因为vertex
+// shader已经把图像压缩到[-1,1]^3空间内了)；
 QMatrix4x4 MyGLWidget::transformMatrix(const float ww, const float wh,
                                        const float iw, const float ih) {
   if (ih <= 0.0f || wh <= 0.0f) {
@@ -240,9 +242,9 @@ QMatrix4x4 MyGLWidget::transformMatrix(const float ww, const float wh,
   QMatrix4x4 ortho = windowScaleMatrix(width(), height());
   QMatrix4x4 transformMatrix;
   QMatrix4x4 betweenMatrix = ortho * scale * mirror;
-  QMatrix4x4 adjustMatrix;
-  if (imageRatio >= 1.0f) {
-    if (windowRatio >= 1.0f) {
+  QMatrix4x4 adjustMatrix; // adjustMatrix要尽量留在有等号的地方，以包容各种情况
+  if (imageRatio > 1.0f) {
+    if (windowRatio > 1.0f) {
       transformMatrix = betweenMatrix;
 
     } else {
@@ -306,4 +308,29 @@ QMatrix4x4 MyGLWidget::windowScaleMatrix(const float winWidth,
                    0.0, 0.0, 0.0, 1.0};
   }
   return orthoMatrix;
+}
+
+QMatrix4x4 MyGLWidget::transformMatrix2(const float ww, const float wh,
+                                        const float iw, const float ih) {
+  QMatrix4x4 transformMatrix;
+
+  if (ww <= 0 || wh <= 0 || iw <= 0 || ih <= 0) {
+    return QMatrix4x4();
+  }
+  auto imageRatio = iw / ih;
+  auto windowRatio = ww / wh;
+  auto scaleX = 0.0f;
+  auto scaleY = 0.0f;
+
+  if (imageRatio > windowRatio) {
+    scaleX = 1.0f;
+    scaleY = windowRatio / imageRatio;
+  } else {
+    scaleX = imageRatio / windowRatio;
+    scaleY = 1.0f;
+  }
+
+  transformMatrix.scale(scaleX, -scaleY, 1.0f);
+
+  return transformMatrix;
 }

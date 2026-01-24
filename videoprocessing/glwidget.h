@@ -51,4 +51,5 @@ private:
   QMatrix4x4 imageScaleMatrix(float imgWidth, float imgHeight);
   QMatrix4x4 windowScaleMatrix(float winWidth, float winHeight);
   QMatrix4x4 transformMatrix(float ww, float wh, float iw, float ih);
+  QMatrix4x4 transformMatrix2(float ww, float wh, float iw, float ih);
 };
