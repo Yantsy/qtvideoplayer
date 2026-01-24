@@ -6,18 +6,29 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h>
 }
-
+#include "target.h"
 class MyDecoder {
 public:
-  auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex) noexcept {
+  auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex,
+               uint8_t tgt) noexcept {
     const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
     const auto *decoder = avcodec_find_decoder(cdcPar->codec_id);
     if (decoder == nullptr) {
       std::cout << "Can't find supported decoder\n" << std::endl;
       // exit(-1);
     } else {
-      std::cout << "Supported videostream decoder:" << decoder->name << "\n"
-                << std::endl;
+      switch (tgt) {
+      case target::VIDEO: {
+        std::cout << "Supported videostream decoder:" << decoder->name << "\n"
+                  << std::endl;
+        break;
+      }
+      case target::AUDIO: {
+        std::cout << "Supported audiostream decoder:" << decoder->name << "\n"
+                  << std::endl;
+        break;
+      }
+      }
     }
     return decoder;
   }

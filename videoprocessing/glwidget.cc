@@ -21,8 +21,9 @@ MyGLWidget::~MyGLWidget() {
   delete m_textureU;
   delete m_textureV;
   doneCurrent();
-  std::cout << "PaintCount: " << paintCount << "\n" << std::endl;
+  std::cout << "PaintCount: " << paintCount << "\n";
   std::cout << "RenderCount: " << renderCount << "\n" << std::endl;
+  std::cout << "至是工程已毕，于斯合题\n" << std::endl;
 }
 
 void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, unsigned char *V,

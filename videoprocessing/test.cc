@@ -9,6 +9,7 @@
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
+  // app.setQuitOnLastWindowClosed(true);
   MyGLWidget ffmpegvideowidget;
   ffmpegvideowidget.show();
 
@@ -24,9 +25,12 @@ int main(int argc, char *argv[]) {
   }
   myDemuxer.open(filePath.toStdString().c_str(), FormatCtx);
 
-  auto vsIndex = myDemuxer.findVSInfo(FormatCtx);
-  const auto decoder = myDecoder.findDec(FormatCtx, vsIndex);
+  auto vsIndex = myDemuxer.findVSInfo(FormatCtx, target::VIDEO);
+  auto asIndex = myDemuxer.findASInfo(FormatCtx, target::AUDIO);
+  const auto decoder = myDecoder.findDec(FormatCtx, vsIndex, target::VIDEO);
+  const auto adecoder = myDecoder.findDec(FormatCtx, asIndex, target::AUDIO);
   const auto deCtx = myDecoder.alcCtx(decoder, FormatCtx);
+  const auto adeCtx = myDecoder.alcCtx(decoder, FormatCtx);
   const auto decFrame = myDecoder.alcFrm();
   const auto myFrame = myDecoder.alcFrm();
   const auto pkt = myDecoder.alcPkt();
@@ -88,15 +92,16 @@ int main(int argc, char *argv[]) {
     av_packet_unref(pkt);
   }
   std::cout << "Total Packets: " << amtPkt << "\n";
-  std::cout << "Total Frames: " << amtFrm << "\n";
+  std::cout << "Total Frames: " << amtFrm << "\n" << std::endl;
 
   myDecoder.free(pkt);
   myDecoder.free(decFrame);
   myDecoder.free(myFrame);
   myDemuxer.close(FormatCtx);
   myDecoder.free(deCtx);
+  myDecoder.free(adeCtx);
 
-  printf("9\n");
+  std::cout << "Decoding Terminated " << "\n" << std::endl;
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
   //  decoder.decode(demuxer.pLocalCodecParameters);
 

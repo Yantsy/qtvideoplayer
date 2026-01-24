@@ -54,6 +54,7 @@ qt_add_executable(test
 ../videoprocessing/decoder.h
 ../videoprocessing/glwidget.h
 ../videoprocessing/glwidget.cc
+../videoprocessing/target.h
 )
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
 
