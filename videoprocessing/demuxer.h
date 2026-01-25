@@ -8,10 +8,10 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h>
 }
-#include "target.h"
+
 class MyDemuxer {
 public:
-  auto alloc() noexcept {
+  auto alcFmtCtx() noexcept {
   std:
     AVFormatContext *pFormatCtx = avformat_alloc_context();
     return pFormatCtx;
@@ -29,34 +29,32 @@ public:
     return 0;
   }
 
-  auto findVSInfo(AVFormatContext *pFormatCtx, uint8_t tgt) noexcept {
+  auto findSInfo(AVFormatContext *pFormatCtx) noexcept {
     if (avformat_find_stream_info(pFormatCtx, nullptr) != 0) {
       std::cout << "Can't find video stream info\n" << std::endl;
       return -1;
     }
+    return 0;
+  }
+
+  auto findVSInfo(AVFormatContext *pFormatCtx) noexcept {
 
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
+
       const float duration = (float)pFormatCtx->streams[i]->duration /
                              pFormatCtx->streams[i]->time_base.den;
-      if (cdcPar->codec_type == AVMEDIA_TYPE_VIDEO && tgt == target::VIDEO) {
+      if (cdcPar->codec_type == AVMEDIA_TYPE_VIDEO) {
         std::cout << "Video Resolution:" << cdcPar->width << "x"
                   << cdcPar->height << "\n"
                   << "Video Duration:" << duration << "s\n"
                   << std::endl;
         return i;
       }
-      if (cdcPar->codec_type == AVMEDIA_TYPE_AUDIO && tgt == target::AUDIO) {
-        std::cout << "Audio Sample Rate:" << cdcPar->width << "x"
-                  << cdcPar->sample_rate << "\n"
-                  << "Audio Duration:" << duration << "s\n"
-                  << std::endl;
-        return i;
-      }
     }
     return 0;
   }
-  auto findASInfo(AVFormatContext *pFormatCtx, uint8_t tgt) noexcept {
+  auto findASInfo(AVFormatContext *pFormatCtx) noexcept {
 
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
@@ -65,8 +63,8 @@ public:
       if (!duration) {
         duration = 0.0f;
       };
-      if (cdcPar->codec_type == AVMEDIA_TYPE_AUDIO && tgt == target::AUDIO) {
-        std::cout << "0001" << "\n";
+      if (cdcPar->codec_type == AVMEDIA_TYPE_AUDIO) {
+
         std::cout << "Audio Sample Rate:"
                   << float(cdcPar->sample_rate / 1000.0f) << "KHz\n"
                   << "Audio Duration:" << duration << "s\n"

@@ -12,14 +12,20 @@
 #include <QPixmap>
 #include <QTimer>
 
+extern "C" {
+#include <libavutil/imgutils.h>
+}
+
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions {
   Q_OBJECT
 public:
   explicit MyGLWidget(QWidget *parent = nullptr) noexcept;
   ~MyGLWidget();
 
-  void renderWithOpenGL(uint8_t *Y, uint8_t *U, unsigned char *V, int w, int h,
-                        int strideY, int strideUV) noexcept;
+  void renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w, int h,
+                         int strideY, int strideUV, char ppxFmt) noexcept;
+  void renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int w, int h,
+                          int strideY, int strideUV, char ppxFmt) noexcept;
 
 protected:
   void initializeGL() override;
@@ -47,7 +53,7 @@ private:
   float imageHeight = 0.0f;
   float windowWidth = 0.0f;
   float windowHeight = 0.0f;
-
+  bool isTenbit = false;
   QMatrix4x4 imageScaleMatrix(float imgWidth, float imgHeight);
   QMatrix4x4 windowScaleMatrix(float winWidth, float winHeight);
   QMatrix4x4 transformMatrix(float ww, float wh, float iw, float ih);

@@ -6,7 +6,9 @@
 #include <QWidget>
 #include <chrono>
 #include <thread>
-
+extern "C" {
+#include <libavutil/pixdesc.h>
+}
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   // app.setQuitOnLastWindowClosed(true);
@@ -16,7 +18,7 @@ int main(int argc, char *argv[]) {
   // Demuxer demuxer;
   MyDemuxer myDemuxer;
   MyDecoder myDecoder;
-  const auto FormatCtx = myDemuxer.alloc();
+  const auto FormatCtx = myDemuxer.alcFmtCtx();
 
   auto filePath = QFileDialog::getOpenFileName();
   if (filePath.isEmpty()) {
@@ -24,19 +26,27 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   myDemuxer.open(filePath.toStdString().c_str(), FormatCtx);
+  myDemuxer.findSInfo(FormatCtx);
 
-  auto vsIndex = myDemuxer.findVSInfo(FormatCtx, target::VIDEO);
-  auto asIndex = myDemuxer.findASInfo(FormatCtx, target::AUDIO);
+  auto vsIndex = myDemuxer.findVSInfo(FormatCtx);
+  auto asIndex = myDemuxer.findASInfo(FormatCtx);
   const auto decoder = myDecoder.findDec(FormatCtx, vsIndex, target::VIDEO);
   const auto adecoder = myDecoder.findDec(FormatCtx, asIndex, target::AUDIO);
-  const auto deCtx = myDecoder.alcCtx(decoder, FormatCtx);
-  const auto adeCtx = myDecoder.alcCtx(decoder, FormatCtx);
+  const auto deCtx = myDecoder.alcCtx(decoder, FormatCtx, vsIndex);
+  const auto dePxFmt = myDecoder.findPxFmt(deCtx);
+  const auto dePxDpth = myDecoder.findPxDpth(dePxFmt);
+  const auto adeCtx = myDecoder.alcCtx(adecoder, FormatCtx, asIndex);
+  const auto adeSprFmt = myDecoder.findSprFmt(adeCtx);
   const auto decFrame = myDecoder.alcFrm();
   const auto myFrame = myDecoder.alcFrm();
   const auto pkt = myDecoder.alcPkt();
   double timeBase = av_q2d(FormatCtx->streams[vsIndex]->time_base);
   auto startTime = std::chrono::steady_clock::now();
   int64_t firstPts = AV_NOPTS_VALUE;
+  int pxFmt = 0;
+  // int olineSizeY = 0;
+  int lineSizeU = 0;
+  int lineSizeV = 0;
   uint8_t yPlane;
   uint8_t uPlane;
   uint8_t vPlane;
@@ -46,6 +56,7 @@ int main(int argc, char *argv[]) {
   int lineSizeUV = 0;
   int amtPkt = 0;
   int amtFrm = 0;
+  int count = 0;
 
   while (myDecoder.axptPkt(FormatCtx, pkt)) {
     if (pkt->stream_index == vsIndex) {
@@ -54,6 +65,7 @@ int main(int argc, char *argv[]) {
       while (myDecoder.rcvFrm(deCtx, decFrame)) {
         myDecoder.cpyFrm(decFrame, myFrame);
         amtFrm++;
+        count++;
         if (myFrame == nullptr) {
           printf("11\n");
           break;
@@ -68,15 +80,23 @@ int main(int argc, char *argv[]) {
         double frameTimeSeconds = (pts - firstPts) * timeBase;
         auto yPlane = myFrame->data[0];
         auto uPlane = myFrame->data[1];
-        unsigned char *vPlane = myFrame->data[2];
+        auto vPlane = myFrame->data[2];
+        // myFrame->format = deCtx->pix_fmt;
 
         auto frmWidth = myFrame->width;
         auto frmHeight = myFrame->height;
         auto lineSize0 = myFrame->linesize[0];
         auto lineSize1 = myFrame->linesize[1];
+        if (dePxDpth == 8) {
+          ffmpegvideowidget.renderWithOpenGL8(yPlane, uPlane, vPlane, frmWidth,
+                                              frmHeight, lineSize0, lineSize1,
+                                              dePxFmt);
+        } else if (dePxDpth == 10) {
+          ffmpegvideowidget.renderWithOpenGL10(yPlane, uPlane, vPlane, frmWidth,
+                                               frmHeight, lineSize0, lineSize1,
+                                               dePxFmt);
+        }
 
-        ffmpegvideowidget.renderWithOpenGL(yPlane, uPlane, vPlane, frmWidth,
-                                           frmHeight, lineSize0, lineSize1);
         QCoreApplication::processEvents();
         auto now = std::chrono::steady_clock::now();
         double elapsed = std::chrono::duration<double>(now - startTime).count();
@@ -91,6 +111,7 @@ int main(int argc, char *argv[]) {
     }
     av_packet_unref(pkt);
   }
+  // std::cout << "Pixel Format: " << pxFmt << "\n" << std::endl;
   std::cout << "Total Packets: " << amtPkt << "\n";
   std::cout << "Total Frames: " << amtFrm << "\n" << std::endl;
 

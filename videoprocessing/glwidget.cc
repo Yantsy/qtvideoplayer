@@ -26,73 +26,150 @@ MyGLWidget::~MyGLWidget() {
   std::cout << "至是工程已毕，于斯合题\n" << std::endl;
 }
 
-void MyGLWidget::renderWithOpenGL(uint8_t *Y, uint8_t *U, unsigned char *V,
-                                  int w, int h, int strideY,
-                                  int strideUV) noexcept {
+void MyGLWidget::renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
+                                   int h, int strideY, int strideUV,
+                                   char ppxFmt) noexcept {
+  // isTenbit = false;
   renderCount = renderCount + 1;
   imageWidth = w;
   imageHeight = h;
   bool needRecreate = !m_textureY || !m_textureY->isCreated() ||
                       m_textureY->width() != w || m_textureY->height() != h;
-  makeCurrent();
-  // 更新纹理
-  if (needRecreate) {
+  switch (ppxFmt) {
+  case AV_PIX_FMT_YUV420P: {
+    makeCurrent();
+    // 更新纹理
+    if (needRecreate) {
 
-    if (m_textureY) {
-      m_textureY->destroy();
-    } else {
-      m_textureY = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      if (m_textureY) {
+        m_textureY->destroy();
+      } else {
+        m_textureY = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      }
+      m_textureY->setSize(imageWidth, imageHeight);
+      m_textureY->setFormat(QOpenGLTexture::R8_UNorm);
+      m_textureY->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+      m_textureY->setMagnificationFilter(QOpenGLTexture::Linear);
+      m_textureY->allocateStorage();
+      if (m_textureU) {
+        m_textureU->destroy();
+      } else {
+        m_textureU = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      }
+      m_textureU->setSize(imageWidth / 2, imageHeight / 2);
+      m_textureU->setFormat(QOpenGLTexture::R8_UNorm);
+      m_textureU->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+      m_textureU->setMagnificationFilter(QOpenGLTexture::Linear);
+      m_textureU->allocateStorage();
+      if (m_textureV) {
+        m_textureV->destroy();
+      } else {
+        m_textureV = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      }
+      m_textureV->setSize(imageWidth / 2, imageHeight / 2);
+      m_textureV->setFormat(QOpenGLTexture::R8_UNorm);
+      m_textureV->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+      m_textureV->setMagnificationFilter(QOpenGLTexture::Linear);
+      m_textureV->allocateStorage();
     }
-    m_textureY->setSize(imageWidth, imageHeight);
-    m_textureY->setFormat(QOpenGLTexture::R8_UNorm);
-    m_textureY->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    m_textureY->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_textureY->allocateStorage();
-    if (m_textureU) {
-      m_textureU->destroy();
-    } else {
-      m_textureU = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    }
-    m_textureU->setSize(imageWidth / 2, imageHeight / 2);
-    m_textureU->setFormat(QOpenGLTexture::R8_UNorm);
-    m_textureU->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    m_textureU->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_textureU->allocateStorage();
-    if (m_textureV) {
-      m_textureV->destroy();
-    } else {
-      m_textureV = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    }
-    m_textureV->setSize(imageWidth / 2, imageHeight / 2);
-    m_textureV->setFormat(QOpenGLTexture::R8_UNorm);
-    m_textureV->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    m_textureV->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_textureV->allocateStorage();
+    // 处理linesize，如果不处理，读取数据的时候会出错,导致渲染出来的画面很奇怪
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, strideY); // Y 平面的行长度
+
+    m_textureY->bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RED, GL_UNSIGNED_BYTE, Y);
+
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, strideUV); // UV 平面的行长度
+
+    m_textureU->bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w / 2, h / 2, GL_RED,
+                    GL_UNSIGNED_BYTE, U);
+
+    m_textureV->bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w / 2, h / 2, GL_RED,
+                    GL_UNSIGNED_BYTE, V);
+
+    // 重置
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+    doneCurrent();
+  } break;
+  case AV_PIX_FMT_YUV420P10LE: {
+
+  } break;
   }
 
-  // 处理linesize，如果不处理，读取数据的时候会出错,导致渲染出来的画面很奇怪
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, strideY); // Y 平面的行长度
-
-  m_textureY->bind();
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RED, GL_UNSIGNED_BYTE, Y);
-
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, strideUV); // UV 平面的行长度
-
-  m_textureU->bind();
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w / 2, h / 2, GL_RED,
-                  GL_UNSIGNED_BYTE, U);
-
-  m_textureV->bind();
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w / 2, h / 2, GL_RED,
-                  GL_UNSIGNED_BYTE, V);
-
-  // 重置
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-  doneCurrent();
-
+  repaint();
   // 使用 repaint() 强制立即重绘，而不是 update()
+}
+void MyGLWidget::renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
+                                    int h, int strideY, int strideUV,
+                                    char ppxFmt) noexcept {
+  isTenbit = true;
+  renderCount = renderCount + 1;
+  imageWidth = w;
+  imageHeight = h;
+  bool needRecreate = !m_textureY || !m_textureY->isCreated() ||
+                      m_textureY->width() != w || m_textureY->height() != h;
+  switch (ppxFmt) {
+  case AV_PIX_FMT_YUV420P10LE: {
+    makeCurrent();
+    if (needRecreate) {
+
+      if (m_textureY) {
+        m_textureY->destroy();
+      } else {
+        m_textureY = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      }
+      m_textureY->setSize(imageWidth, imageHeight);
+      m_textureY->setFormat(QOpenGLTexture::R16_UNorm);
+      m_textureY->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+      m_textureY->setMagnificationFilter(QOpenGLTexture::Linear);
+      m_textureY->allocateStorage();
+      if (m_textureU) {
+        m_textureU->destroy();
+      } else {
+        m_textureU = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      }
+      m_textureU->setSize(imageWidth / 2, imageHeight / 2);
+      m_textureU->setFormat(QOpenGLTexture::R16_UNorm);
+      m_textureU->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+      m_textureU->setMagnificationFilter(QOpenGLTexture::Linear);
+      m_textureU->allocateStorage();
+      if (m_textureV) {
+        m_textureV->destroy();
+      } else {
+        m_textureV = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      }
+      m_textureV->setSize(imageWidth / 2, imageHeight / 2);
+      m_textureV->setFormat(QOpenGLTexture::R16_UNorm);
+      m_textureV->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+      m_textureV->setMagnificationFilter(QOpenGLTexture::Linear);
+      m_textureV->allocateStorage();
+    }
+    // 处理linesize，如果不处理，读取数据的时候会出错,导致渲染出来的画面很奇怪
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, strideY / 2); // Y 平面的行长度
+
+    m_textureY->bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RED, GL_UNSIGNED_SHORT, Y);
+
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, strideUV / 2); // UV 平面的行长度
+
+    m_textureU->bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w / 2, h / 2, GL_RED,
+                    GL_UNSIGNED_SHORT, U);
+
+    m_textureV->bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w / 2, h / 2, GL_RED,
+                    GL_UNSIGNED_SHORT, V);
+
+    // 重置
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    doneCurrent();
+  } break;
+  }
   repaint();
 }
 void MyGLWidget::initializeGL() {
@@ -122,10 +199,17 @@ void MyGLWidget::initializeGL() {
   uniform sampler2D textureY;
   uniform sampler2D textureU;
   uniform sampler2D textureV;
+  uniform bool is10bit;
   void main(){
   float y = texture(textureY, TexCoord).r;
-  float u =texture(textureU, TexCoord).r-0.5;
-  float v =texture(textureV, TexCoord).r-0.5;
+  float u =texture(textureU, TexCoord).r;
+  float v =texture(textureV, TexCoord).r;
+  if(is10bit){
+  y=y*64;
+  u=u*64;
+  v=v*64;}
+  u=u-0.5;
+  v=v-0.5;
   float r=y+1.402*v;
   float g=y-0.34414*u-0.71414*v;
   float b=y+1.772*u;
@@ -208,8 +292,9 @@ void MyGLWidget::paintGL() {
   m_shaderProgram0->setUniformValue("textureU", 1);
   m_textureV->bind(2);
   m_shaderProgram0->setUniformValue("textureV", 2);
+  m_shaderProgram0->setUniformValue("is10bit", isTenbit);
   QMatrix4x4 transform =
-      transformMatrix(width(), height(), imageWidth, imageHeight);
+      transformMatrix2(width(), height(), imageWidth, imageHeight);
   m_shaderProgram0->setUniformValue("transform", transform);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

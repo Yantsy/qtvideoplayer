@@ -9,34 +9,51 @@ extern "C" {
 #include "target.h"
 class MyDecoder {
 public:
+  auto findPxFmt(const AVCodecContext *pcdCtx) noexcept {
+    const auto *ppixFmt = av_get_pix_fmt_name(pcdCtx->pix_fmt);
+    if (ppixFmt == nullptr) {
+      std::cout << "Can't find supported pixel format\n" << std::endl;
+      // exit(-1);
+    }
+    std::cout << "Pixel format:" << ppixFmt << "\n" << std::endl;
+    return pcdCtx->pix_fmt;
+  }
+  auto findSprFmt(const AVCodecContext *pcdCtx) noexcept {
+    const auto *psprFmt = av_get_sample_fmt_name(pcdCtx->sample_fmt);
+    if (psprFmt == nullptr) {
+      std::cout << "Can't find supported sample format\n" << std::endl;
+      // exit(-1);
+    }
+    std::cout << "Sample format:" << psprFmt << "\n" << std::endl;
+    return pcdCtx->sample_fmt;
+  }
   auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex,
                uint8_t tgt) noexcept {
     const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
-    const auto *decoder = avcodec_find_decoder(cdcPar->codec_id);
-    if (decoder == nullptr) {
+    const auto *pdecoder = avcodec_find_decoder(cdcPar->codec_id);
+    if (pdecoder == nullptr) {
       std::cout << "Can't find supported decoder\n" << std::endl;
       // exit(-1);
     } else {
       switch (tgt) {
       case target::VIDEO: {
-        std::cout << "Supported videostream decoder:" << decoder->name << "\n"
-                  << std::endl;
+        std::cout << "Supported videostream decoder:" << pdecoder->name << "\n";
         break;
       }
       case target::AUDIO: {
-        std::cout << "Supported audiostream decoder:" << decoder->name << "\n"
+        std::cout << "Supported audiostream decoder:" << pdecoder->name << "\n"
                   << std::endl;
         break;
       }
       }
     }
-    return decoder;
+    return pdecoder;
   }
 
-  auto alcCtx(const AVCodec *pdecoder,
-              const AVFormatContext *pFormatCtx) noexcept {
+  auto alcCtx(const AVCodec *pdecoder, const AVFormatContext *pFormatCtx,
+              const int pstreamIndex) noexcept {
     AVCodecContext *cdCtx = avcodec_alloc_context3(pdecoder);
-    const auto cdcPar = pFormatCtx->streams[0]->codecpar;
+    const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
     // ignorance of this step makes the codec fail to find the start code,
     // and causes error splitting the input into NAL units
     if (avcodec_parameters_to_context(cdCtx, cdcPar) != 0) {
@@ -47,12 +64,18 @@ public:
       std::cout << "Can't open codec\n" << std::endl;
       // exit(-1);
     } else {
-      std::cout << "Open codec successfully\n" << std::endl;
+      std::cout << "Open codec successfully\n";
     }
 
     return cdCtx;
   }
-
+  auto findPxDpth(AVPixelFormat ppixFmt) noexcept {
+    const AVPixFmtDescriptor *pDesc = av_pix_fmt_desc_get(ppixFmt);
+    if (pDesc) {
+      return pDesc->comp[0].depth;
+    }
+    return 8;
+  }
   auto alcFrm() noexcept {
     AVFrame *frame = av_frame_alloc();
     if (frame == nullptr) {
