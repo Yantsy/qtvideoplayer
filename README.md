@@ -42,7 +42,11 @@
 #### 2.resizeGL()
 
 #### 3.paintGL()
+此处值得注意的点是，那就是有必要区分QOpenGLTexture的两种创建方式，一是直接创建一个有target，但是没有绑定context，且也不包含数据的对象：
 
+此时，你并没有上传texture到内存，也没有将它拷贝到GPU中，也没有绑定context，此时painGL无法执行，强硬执行会导致整个程序崩溃，所以才有必要检测texture是否被创建；此外，此时也无法对texture进行任何format,filter和存储空间的设置。
+
+二是创建一个有target，同时也包含数据的对象。
 
 ### 线程管理
 
@@ -57,6 +61,26 @@
 #### 2.linesize
 
 详情见 [Image Stride](https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride)
+
+#### 3.位深，10bit与8bit有何不同，如何处理？什么是归一化？
+
+首先我们需要知道，texture实际存储在本地或者其他什么地方，要将它上传到GPU的VRAM中，就必须经过RAM->CPU->PCI->VRAM的过程。
+
+那么在这个过程中，我们需要让GPU知道我们将要上传的texture data是如何存储和读取的，而这就是[glPixelStorei](https://registry.khronos.org/OpenGL-Refpages/gl4/)的工作。
+
+>void glPixelStorei(GLenum pname,GLint param);
+
+其中pname的值影响着将data从GPu pack到CPU中，以及将data从CPU unpack到GPU中的方式，而param则是具体的参数。GL_PACK_ALIGNMENT决定着texture data是如何对齐的，默认是4,而对于8bit的图像，我们取1即可(1byte=8bits)。10bit的图像在内存中只能按照16bit的方式存储，也就是每个像素至少要占用2个字节，那么其alignment的值就得取2。
+
+接着便是通过[glTexImage2D](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml)上传纹理到GPU中。
+
+>void glTexImage2D(	GLenum target,GLint level,GLint internalformat,GLsizei width,GLsizei height,GLint border,GLenum format,GLenum type,const void * data);
+
+其中值得注意的参数是type，它规定了pixel data的数据类型，及每个分量值占据的存储空间。由于我们的YUV分量是分别上传的，所以我们只需单独考虑每个分量，以及每个像素的每个分量值占据的字节数，对于8bit的图像，就是1字节，那么取GL_UNSIGENED_BYTE即可，而对于10bit的图像，则需取GL_UNSIGNED_SHORT。
+
+
+#### 4.如何读取mkv文件的duration?
+
 
 #### 2.YUV数据的存储
 

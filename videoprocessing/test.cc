@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
   myDecoder.free(deCtx);
   myDecoder.free(adeCtx);
 
-  std::cout << "Decoding Terminated " << "\n" << std::endl;
+  std::cout << "Decoding Done " << "\n" << std::endl;
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
   //  decoder.decode(demuxer.pLocalCodecParameters);
 

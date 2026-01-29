@@ -5,6 +5,7 @@ MyGLWidget::MyGLWidget(QWidget *parent) noexcept : QOpenGLWidget(parent) {
   this->setContentsMargins(0, 0, 0, 0);
   this->setMinimumSize(600, 500);
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  // timer->start();
 }
 
 MyGLWidget::~MyGLWidget() {
@@ -72,7 +73,7 @@ void MyGLWidget::renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
       m_textureV->setMagnificationFilter(QOpenGLTexture::Linear);
       m_textureV->allocateStorage();
     }
-    // 处理linesize，如果不处理，读取数据的时候会出错,导致渲染出来的画面很奇怪
+    // 处理linesize，如果不处理，读取数据的时候会出错,导致渲染出来的画面很奇怪,比如变成一堆竖线或者斜线...
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, strideY); // Y 平面的行长度
 
@@ -114,6 +115,7 @@ void MyGLWidget::renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
   switch (ppxFmt) {
   case AV_PIX_FMT_YUV420P10LE: {
     makeCurrent();
+    // 在必要时重新创建纹理并分配内存，一般不会触发，但是就怕万一
     if (needRecreate) {
 
       if (m_textureY) {
@@ -173,9 +175,9 @@ void MyGLWidget::renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
   repaint();
 }
 void MyGLWidget::initializeGL() {
-  constexpr auto m_imageSource = ":/resources/aichan.jpg";
-  // imageWidth = QImage(m_imageSource).width();
-  // imageHeight = QImage(m_imageSource).height();
+  // constexpr auto m_imageSource = ":/resources/aichan.jpg";
+  //  imageWidth = QImage(m_imageSource).width();
+  //  imageHeight = QImage(m_imageSource).height();
 
   const float m_vertices[] = {1.0f, 1,     0.0f, 1.0f,  1.0f, 1.0f, -1,
                               0.0f, 1.0f,  0.0f, -1.0f, -1,   0.0f, 0.0f,
@@ -249,26 +251,12 @@ void MyGLWidget::initializeGL() {
   m_shaderProgram0->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 2,
                                        5 * sizeof(float));
   m_shaderProgram0->enableAttributeArray(1);
-  /*
-    m_texture0 = new QOpenGLTexture(QImage(m_imageSource));
-    m_texture0->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    m_texture0->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_texture0->setWrapMode(QOpenGLTexture::ClampToEdge);*/
+  // 造成内存泄露的罪魁祸首1，此时并没有分配GPU内存
+  // m_textureY = new QOpenGLTexture(QOpenGLTexture::Target2D);
 
-  m_textureY = new QOpenGLTexture(QOpenGLTexture::Target2D);
-  // m_textureY->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-  // m_textureY->setMagnificationFilter(QOpenGLTexture::Linear);
-  // m_textureY->setWrapMode(QOpenGLTexture::ClampToEdge);
+  // m_textureU = new QOpenGLTexture(QOpenGLTexture::Target2D);
 
-  m_textureU = new QOpenGLTexture(QOpenGLTexture::Target2D);
-  // m_textureU->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-  // m_textureU->setMagnificationFilter(QOpenGLTexture::Linear);
-  // m_textureU->setWrapMode(QOpenGLTexture::ClampToEdge);
-
-  m_textureV = new QOpenGLTexture(QOpenGLTexture::Target2D);
-  // m_textureV->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-  // m_textureV->setMagnificationFilter(QOpenGLTexture::Linear);
-  // m_textureV->setWrapMode(QOpenGLTexture::ClampToEdge);
+  // m_textureV = new QOpenGLTexture(QOpenGLTexture::Target2D);
 
   m_vao0->release();
   m_shaderProgram0->release();
@@ -276,7 +264,7 @@ void MyGLWidget::initializeGL() {
 void MyGLWidget::resizeGL(const int w, const int h) { glViewport(0, 0, w, h); }
 void MyGLWidget::paintGL() {
   paintCount = paintCount + 1;
-  // 造成内存泄露的罪魁祸首
+  // 造成内存泄露的罪魁祸首2
   if (!m_textureY || !m_textureY->isCreated() || !m_textureU ||
       !m_textureU->isCreated() || !m_textureV || !m_textureV->isCreated()) {
     return;

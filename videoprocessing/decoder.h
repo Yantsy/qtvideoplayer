@@ -64,15 +64,26 @@ public:
       std::cout << "Can't open codec\n" << std::endl;
       // exit(-1);
     } else {
-      std::cout << "Open codec successfully\n";
+      std::cout << "Open codec successfully\n" << std::endl;
     }
 
     return cdCtx;
   }
   auto findPxDpth(AVPixelFormat ppixFmt) noexcept {
+    // AVPixFmtDescriptor:Descriptor that unambiguously describes how the bits
+    // of a pixel are stored in the up to 4 data planes of an image.
     const AVPixFmtDescriptor *pDesc = av_pix_fmt_desc_get(ppixFmt);
     if (pDesc) {
-      return pDesc->comp[0].depth;
+
+      std::cout << "Pixel depth:" << pDesc->comp[1].depth << "\n" << std::endl;
+      // std::cout << "Pixel format:" << pDesc->name << "\n" << std::endl;
+      std::cout << "Pixel flags:" << pDesc->flags << "\n" << std::endl;
+      // std::cout << "Pixel log2_chroma_w and log2_chroma_h:"
+      //<< pDesc->log2_chroma_w << ":" << pDesc->log2_chroma_h << "\n"
+      //<< std::endl;
+      // comp:Parameters that describe how pixels are packed by its FourCC
+      // components
+      return pDesc->comp[1].depth;
     }
     return 8;
   }
