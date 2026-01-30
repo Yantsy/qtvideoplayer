@@ -254,7 +254,7 @@ void MyGLWidget::initializeGL() {
   // 造成内存泄露的罪魁祸首1，此时并没有分配GPU内存
   // m_textureY = new QOpenGLTexture(QOpenGLTexture::Target2D);
 
-  // m_textureU = new QOpenGLTexture(QOpenGLTexture::Target2D);
+  // m_textureU = new QOpenGLTexture(m_imageSource, QOpenGLTexture::Target2D);
 
   // m_textureV = new QOpenGLTexture(QOpenGLTexture::Target2D);
 

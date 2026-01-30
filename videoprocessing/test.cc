@@ -1,6 +1,3 @@
-#include "decoder.h"
-#include "demuxer.h"
-#include "glwidget.h"
 #include <QApplication>
 #include <QFileDialog>
 #include <QWidget>
@@ -9,6 +6,11 @@
 extern "C" {
 #include <libavutil/pixdesc.h>
 }
+
+// #include "audiowidget.h"
+#include "decoder.h"
+#include "demuxer.h"
+#include "glwidget.h"
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   // app.setQuitOnLastWindowClosed(true);
@@ -34,15 +36,19 @@ int main(int argc, char *argv[]) {
   const auto adecoder = myDecoder.findDec(FormatCtx, asIndex, target::AUDIO);
   const auto deCtx = myDecoder.alcCtx(decoder, FormatCtx, vsIndex);
   const auto dePxFmt = myDecoder.findPxFmt(deCtx);
-  const auto dePxDpth = myDecoder.findPxDpth(dePxFmt);
+  const auto dePxDpth = myDecoder.findPxDpth(dePxFmt, 1);
   const auto adeCtx = myDecoder.alcCtx(adecoder, FormatCtx, asIndex);
   const auto adeSprFmt = myDecoder.findSprFmt(adeCtx);
   const auto decFrame = myDecoder.alcFrm();
+  const auto adecFrame = myDecoder.alcFrm();
   const auto myFrame = myDecoder.alcFrm();
+  const auto amyFrame = myDecoder.alcFrm();
   const auto pkt = myDecoder.alcPkt();
   double timeBase = av_q2d(FormatCtx->streams[vsIndex]->time_base);
+  double atimeBase = av_q2d(FormatCtx->streams[asIndex]->time_base);
   auto startTime = std::chrono::steady_clock::now();
   int64_t firstPts = AV_NOPTS_VALUE;
+  int64_t afirstPts = AV_NOPTS_VALUE;
   int pxFmt = 0;
   // int olineSizeY = 0;
   int lineSizeU = 0;
@@ -108,6 +114,14 @@ int main(int argc, char *argv[]) {
         av_frame_unref(myFrame);
       }
       av_frame_unref(decFrame);
+    } else if (pkt->stream_index == asIndex) {
+      myDecoder.decPkt(adeCtx, pkt);
+      while (myDecoder.rcvFrm(adeCtx, adecFrame)) {
+        myDecoder.cpyFrm(adecFrame, amyFrame);
+
+        av_frame_unref(adecFrame);
+      }
+      av_frame_unref(amyFrame);
     }
     av_packet_unref(pkt);
   }
@@ -117,10 +131,12 @@ int main(int argc, char *argv[]) {
 
   myDecoder.free(pkt);
   myDecoder.free(decFrame);
+  myDecoder.free(adecFrame);
   myDecoder.free(myFrame);
-  myDemuxer.close(FormatCtx);
+  myDecoder.free(amyFrame);
   myDecoder.free(deCtx);
   myDecoder.free(adeCtx);
+  myDemuxer.close(FormatCtx);
 
   std::cout << "Decoding Done " << "\n" << std::endl;
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");

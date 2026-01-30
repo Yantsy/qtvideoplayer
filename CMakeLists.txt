@@ -21,6 +21,10 @@ find_package(Eigen3 REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2 REQUIRED sdl2)
+pkg_check_modules(SDL2MIXER REQUIRED SDL2_mixer)
+
 set(FFMPEG_INCLUDE_DIR "/usr/local/ffmpeg/include")
 set(FFMPEG_LIB_DIR "/usr/local/ffmpeg/lib")
 
@@ -54,7 +58,7 @@ qt_add_executable(test
 ../videoprocessing/decoder.h
 ../videoprocessing/glwidget.h
 ../videoprocessing/glwidget.cc
-../videoprocessing/target.h
+../videoprocessing/audiowidget.h
 )
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
 
@@ -70,7 +74,7 @@ target_link_libraries(${PROJECT_NAME}  PUBLIC Qt6::Core Qt6::Widgets Qt6::Quick 
 target_link_libraries(test  PUBLIC Qt6::Core Qt6::Widgets Qt6::Quick Qt6::Svg Qt6::SvgWidgets Qt6::OpenGL Qt6::OpenGLWidgets OpenGL::GL OpenGL::GLU)
 
 target_link_libraries(${PROJECT_NAME}  PRIVATE Qt6::Multimedia Qt6::MultimediaWidgets)
-
+target_link_libraries(test  PRIVATE Qt6::Multimedia Qt6::MultimediaWidgets)
 target_link_libraries(${PROJECT_NAME} PUBLIC avformat avcodec avutil swscale swresample)
 
 target_link_libraries(test PUBLIC avformat avcodec avutil swscale swresample)
@@ -80,6 +84,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCV_LIBS})
 
 
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    ${SDL2_LIBRARIES}
+    ${SDL2MIXER_LIBRARIES}
+)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 

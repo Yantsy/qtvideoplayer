@@ -6,6 +6,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
+#include <libavutil/channel_layout.h>
 #include <libavutil/imgutils.h>
 }
 
@@ -42,8 +43,12 @@ public:
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
 
-      const float duration = (float)pFormatCtx->streams[i]->duration /
-                             pFormatCtx->streams[i]->time_base.den;
+      auto containerDuration = (float)pFormatCtx->duration;
+      auto base = pFormatCtx->streams[i]->time_base.den;
+      auto duration = (float)pFormatCtx->streams[i]->duration / base;
+      if (duration <= 0.0f) {
+        duration = containerDuration / 1000 / base;
+      };
       if (cdcPar->codec_type == AVMEDIA_TYPE_VIDEO) {
         std::cout << "Video Resolution:" << cdcPar->width << "x"
                   << cdcPar->height << "\n"
@@ -58,15 +63,21 @@ public:
 
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
-      float duration = (float)pFormatCtx->streams[i]->duration /
-                       pFormatCtx->streams[i]->time_base.den;
-      if (!duration) {
-        duration = 0.0f;
+      char layout_name[64];
+      av_channel_layout_describe(&cdcPar->ch_layout, layout_name,
+                                 sizeof(layout_name));
+      auto containerDuration = (float)pFormatCtx->duration;
+      auto base = pFormatCtx->streams[i]->time_base.den;
+      auto duration = (float)pFormatCtx->streams[i]->duration / base;
+      if (duration <= 0) {
+        duration = containerDuration / 1000 / base;
       };
       if (cdcPar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
         std::cout << "Audio Sample Rate:"
                   << float(cdcPar->sample_rate / 1000.0f) << "KHz\n"
+                  << "Audio Channel Layout: " << layout_name << "\n"
+                  << "Audio Channels:" << cdcPar->ch_layout.nb_channels << "\n"
                   << "Audio Duration:" << duration << "s\n"
                   << std::endl;
         return i;

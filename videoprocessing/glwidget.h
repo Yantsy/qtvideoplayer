@@ -21,7 +21,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions {
 public:
   explicit MyGLWidget(QWidget *parent = nullptr) noexcept;
   ~MyGLWidget();
-
+  // void render(uint8_t *Y, uint8_t *U, uint8_t *V, char *ppxFmt) noexcept;
   void renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w, int h,
                          int strideY, int strideUV, char ppxFmt) noexcept;
   void renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int w, int h,

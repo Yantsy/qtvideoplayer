@@ -20,12 +20,26 @@ public:
   }
   auto findSprFmt(const AVCodecContext *pcdCtx) noexcept {
     const auto *psprFmt = av_get_sample_fmt_name(pcdCtx->sample_fmt);
+    auto a = pcdCtx->sample_fmt;
     if (psprFmt == nullptr) {
       std::cout << "Can't find supported sample format\n" << std::endl;
       // exit(-1);
     }
     std::cout << "Sample format:" << psprFmt << "\n" << std::endl;
     return pcdCtx->sample_fmt;
+  }
+
+  auto findAudioSpec(const AVCodecContext *pcdCtx) noexcept {
+    struct AudioSpec {
+      int freq;
+      int format;
+      int channels;
+      int silence;
+      int bufferSize;
+      int bytesSize;
+      uint8_t *userData;
+      void callback();
+    };
   }
   auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex,
                uint8_t tgt) noexcept {
@@ -69,15 +83,17 @@ public:
 
     return cdCtx;
   }
-  auto findPxDpth(AVPixelFormat ppixFmt) noexcept {
+  auto findPxDpth(AVPixelFormat ppixFmt, int out) noexcept {
     // AVPixFmtDescriptor:Descriptor that unambiguously describes how the bits
     // of a pixel are stored in the up to 4 data planes of an image.
     const AVPixFmtDescriptor *pDesc = av_pix_fmt_desc_get(ppixFmt);
     if (pDesc) {
-
-      std::cout << "Pixel depth:" << pDesc->comp[1].depth << "\n" << std::endl;
-      // std::cout << "Pixel format:" << pDesc->name << "\n" << std::endl;
-      std::cout << "Pixel flags:" << pDesc->flags << "\n" << std::endl;
+      if (out == 1) {
+        std::cout << "Pixel depth:" << pDesc->comp[1].depth << "\n"
+                  << std::endl;
+        // std::cout << "Pixel format:" << pDesc->name << "\n" << std::endl;
+        // std::cout << "Pixel flags:" << pDesc->flags << "\n" << std::endl;
+      }
       // std::cout << "Pixel log2_chroma_w and log2_chroma_h:"
       //<< pDesc->log2_chroma_w << ":" << pDesc->log2_chroma_h << "\n"
       //<< std::endl;
