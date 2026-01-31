@@ -59,6 +59,8 @@ qt_add_executable(test
 ../videoprocessing/glwidget.h
 ../videoprocessing/glwidget.cc
 ../videoprocessing/audiowidget.h
+../videoprocessing/resampler.h
+../videoprocessing/target.h
 )
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
 

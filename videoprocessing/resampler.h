@@ -27,9 +27,11 @@ public:
     return 0;
   }
   auto plannarTpacked(uint8_t pChnllData) {
-    uint8_t *pPackedData = nullptr;
+    uint8_t pPackedData;
     if (isPlannar) {
       std::cout << "From plannar to packed success\n" << std::endl;
+    } else {
+      std::cout << "No need to resample\n" << std::endl;
     }
     return pPackedData;
   }

@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   const auto dePxFmt = myDecoder.findPxFmt(deCtx);
   const auto dePxDpth = myDecoder.findPxDpth(dePxFmt, 1);
   const auto adeCtx = myDecoder.alcCtx(adecoder, FormatCtx, asIndex);
-  const auto adeSprFmt = myDecoder.findSprFmt(adeCtx);
+  const auto adeSpc = myDecoder.findASInfo(FormatCtx, adeCtx, asIndex);
   const auto decFrame = myDecoder.alcFrm();
   const auto adecFrame = myDecoder.alcFrm();
   const auto myFrame = myDecoder.alcFrm();

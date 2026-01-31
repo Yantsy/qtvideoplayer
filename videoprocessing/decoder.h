@@ -1,4 +1,6 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -6,6 +8,7 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h>
 }
+#include "resampler.h"
 #include "target.h"
 class MyDecoder {
 public:
@@ -28,18 +31,41 @@ public:
     std::cout << "Sample format:" << psprFmt << "\n" << std::endl;
     return pcdCtx->sample_fmt;
   }
-
-  auto findAudioSpec(const AVCodecContext *pcdCtx) noexcept {
-    struct AudioSpec {
-      int freq;
-      int format;
-      int channels;
-      int silence;
-      int bufferSize;
-      int bytesSize;
-      uint8_t *userData;
-      void callback();
+  auto findASInfo(const AVFormatContext *pFormatCtx,
+                  const AVCodecContext *pcdCtx,
+                  const int pastreamIndex) noexcept {
+    SDL_AudioSpec pSpec;
+    MyResampler pResampler;
+    const auto cdcPar = pFormatCtx->streams[pastreamIndex]->codecpar;
+    char layout_name[64];
+    const auto *psprFmt = av_get_sample_fmt_name(pcdCtx->sample_fmt);
+    auto a = pcdCtx->sample_fmt;
+    if (psprFmt == nullptr) {
+      std::cout << "Can't find supported sample format\n" << std::endl;
+      // exit(-1);
+    }
+    av_channel_layout_describe(&cdcPar->ch_layout, layout_name,
+                               sizeof(layout_name));
+    auto containerDuration = (float)pFormatCtx->duration;
+    auto base = pFormatCtx->streams[pastreamIndex]->time_base.den;
+    auto duration = (float)pFormatCtx->streams[pastreamIndex]->duration / base;
+    if (duration <= 0) {
+      duration = containerDuration / 1000 / base;
     };
+
+    std::cout << "Audio Sample Rate:" << float(cdcPar->sample_rate / 1000.0f)
+              << "KHz\n"
+              << "Audio Channel Layout: " << layout_name << "\n"
+              << "Audio Channels:" << cdcPar->ch_layout.nb_channels << "\n"
+              << "Audio Duration:" << duration << "s\n"
+              << "Sample format:" << psprFmt << "\n"
+              << std::endl;
+    pSpec.freq = cdcPar->sample_rate;
+    pSpec.format = pResampler.fmtNameTrans(pcdCtx->sample_fmt);
+    pSpec.channels = cdcPar->ch_layout.nb_channels;
+    pSpec.samples = 1024;
+    pSpec.silence = 0;
+    return pSpec;
   }
   auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex,
                uint8_t tgt) noexcept {
