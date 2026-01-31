@@ -1,21 +1,31 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
 #include <SDL2/SDL_mixer.h>
 #include <iostream>
 
 class MyAudioWidget {
 public:
-  MyAudioWidget() {
+  auto init() {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-      std::cout << "SDL_Init error:" << SDL_GetError() << std::endl;
+      std::cout << "Can't init SDL\n" << std::endl;
     }
+    std::cout << "Init SDL_Audio success\n" << std::endl;
+    return 0;
   };
-  ~MyAudioWidget() { SDL_AudioQuit(); };
-  auto rcvInfo(int pFreq, Uint16 pFormat, Uint8 pChannels, Uint16 pSamples,
-               Uint32 pBytes, Uint32 pPadding, Uint32 pSize) {}
-
-  auto play() { SDL_OpenAudio(&audioSpec, &spec); }
-
-private:
-  SDL_AudioSpec audioSpec, spec;
+  auto open(SDL_AudioSpec *pwanted, SDL_AudioSpec *pobtained) {
+    if (SDL_OpenAudio(pwanted, pobtained) < 0) {
+      std::cout << "Can't open audio\n" << std::endl;
+      return -1;
+    }
+    std::cout << "Open audio success\n" << std::endl;
+    return 0;
+  };
+  auto pause();
+  auto callBack(void *puserData, Uint8 *pstream, int plen) {
+    SDL_AudioCallback paudioCallback;
+    paudioCallback(puserData, pstream, plen);
+    return paudioCallback;
+  };
+  auto close();
 };

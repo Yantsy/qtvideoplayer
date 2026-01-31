@@ -62,6 +62,23 @@ public:
     }
   }
 
+  auto fmtNameTrans2(AVSampleFormat psprFmt) {
+    switch (psprFmt) {
+    case AV_SAMPLE_FMT_U8P: {
+      return AV_SAMPLE_FMT_U8;
+    } break;
+    case AV_SAMPLE_FMT_S16P: {
+      return AV_SAMPLE_FMT_S16;
+    } break;
+    case AV_SAMPLE_FMT_S32P: {
+      return AV_SAMPLE_FMT_S32;
+    } break;
+    default:
+      // 对于DBLP，以及64-bit的数据，直接看作F32
+      return AV_SAMPLE_FMT_FLT;
+    }
+  }
+
 private:
   bool isPlannar = false;
 };

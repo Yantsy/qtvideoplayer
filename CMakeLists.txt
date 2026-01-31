@@ -25,6 +25,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL2MIXER REQUIRED SDL2_mixer)
 
+
 set(FFMPEG_INCLUDE_DIR "/usr/local/ffmpeg/include")
 set(FFMPEG_LIB_DIR "/usr/local/ffmpeg/lib")
 
@@ -87,7 +88,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCV_LIBS})
 
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(test PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2MIXER_LIBRARIES}
 )

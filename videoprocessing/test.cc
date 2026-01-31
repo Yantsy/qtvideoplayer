@@ -2,24 +2,77 @@
 #include <QFileDialog>
 #include <QWidget>
 #include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <queue>
 #include <thread>
 extern "C" {
 #include <libavutil/pixdesc.h>
+#include <libavutil/samplefmt.h>
+#include <libswresample/swresample.h>
 }
 
-// #include "audiowidget.h"
+#include "audiowidget.h"
 #include "decoder.h"
 #include "demuxer.h"
 #include "glwidget.h"
+
+typedef struct {
+  uint8_t *audio_buf;
+  unsigned int audio_buf_size;
+  unsigned int audio_buf_index;
+} AudioState;
+
+struct AudioQueue {
+  std::queue<std::vector<uint8_t>> packets;
+  std::mutex mutex;
+  size_t currentIndex = 0;
+  std::vector<uint8_t> currentBuffer;
+};
+void callBack(void *puserData, uint8_t *pstream, int plen) {
+  auto *audioState = static_cast<AudioQueue *>(puserData);
+  SDL_memset(pstream, 0, plen);
+
+  int remaining = plen;
+  uint8_t *out = pstream;
+
+  std::lock_guard<std::mutex> lock(audioState->mutex);
+  while (remaining > 0) {
+    if (audioState->currentIndex >= audioState->currentBuffer.size()) {
+      if (audioState->packets.empty()) {
+        return;
+      }
+      audioState->currentBuffer = std::move(audioState->packets.front());
+      audioState->packets.pop();
+      audioState->currentIndex = 0;
+    }
+    size_t available =
+        audioState->currentBuffer.size() - audioState->currentIndex;
+    size_t tocopy = std::min(available, (size_t)remaining);
+
+    SDL_MixAudioFormat(
+        out, audioState->currentBuffer.data() + audioState->currentIndex,
+        AUDIO_F32, tocopy, SDL_MIX_MAXVOLUME);
+    audioState->currentIndex += tocopy;
+    out += tocopy;
+    remaining -= tocopy;
+  }
+};
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   // app.setQuitOnLastWindowClosed(true);
   MyGLWidget ffmpegvideowidget;
   ffmpegvideowidget.show();
 
+  MyAudioWidget audioWidget;
+  audioWidget.init();
+
+  AudioState audioState = {nullptr, 0, 0};
+  AudioQueue audioQueue;
   // Demuxer demuxer;
   MyDemuxer myDemuxer;
   MyDecoder myDecoder;
+  MyResampler myResampler;
   const auto FormatCtx = myDemuxer.alcFmtCtx();
 
   auto filePath = QFileDialog::getOpenFileName();
@@ -38,7 +91,23 @@ int main(int argc, char *argv[]) {
   const auto dePxFmt = myDecoder.findPxFmt(deCtx);
   const auto dePxDpth = myDecoder.findPxDpth(dePxFmt, 1);
   const auto adeCtx = myDecoder.alcCtx(adecoder, FormatCtx, asIndex);
-  const auto adeSpc = myDecoder.findASInfo(FormatCtx, adeCtx, asIndex);
+  auto adeSpc = myDecoder.findASInfo(FormatCtx, adeCtx, asIndex);
+  adeSpc.callback = callBack;
+  adeSpc.userdata = &audioQueue;
+  auto obtSpc = SDL_AudioSpec();
+  SDL_AudioDeviceID audioDevice =
+      SDL_OpenAudioDevice(NULL, 0, &adeSpc, &obtSpc, 0);
+  if (audioDevice == 0) {
+    SDL_Quit();
+    return -1;
+  }
+  SDL_PauseAudioDevice(audioDevice, 0);
+  SwrContext *swrCtx = swr_alloc();
+  AVChannelLayout channelLayout = AV_CHANNEL_LAYOUT_STEREO;
+  swr_alloc_set_opts2(
+      &swrCtx, &channelLayout, myResampler.fmtNameTrans2(adeCtx->sample_fmt),
+      adeSpc.freq, &channelLayout, adeCtx->sample_fmt, adeSpc.freq, 0, nullptr);
+  swr_init(swrCtx);
   const auto decFrame = myDecoder.alcFrm();
   const auto adecFrame = myDecoder.alcFrm();
   const auto myFrame = myDecoder.alcFrm();
@@ -118,6 +187,21 @@ int main(int argc, char *argv[]) {
       myDecoder.decPkt(adeCtx, pkt);
       while (myDecoder.rcvFrm(adeCtx, adecFrame)) {
         myDecoder.cpyFrm(adecFrame, amyFrame);
+        /*
+        int outBufferSize = av_samples_get_buffer_size(NULL, adeSpc.channels,
+                                                       adecFrame->nb_samples,
+                                                       adeCtx->sample_fmt, 1);*/
+        // uint8_t *outBuffer = (uint8_t *)av_malloc(outBufferSize);
+        int outSamples = adecFrame->nb_samples;
+        int outBufferSize = outSamples * 2 * sizeof(float);
+        std::vector<uint8_t> buffer(outBufferSize);
+        uint8_t *bufPtr = buffer.data();
+        swr_convert(swrCtx, &bufPtr, outSamples,
+                    (const uint8_t **)adecFrame->data, adecFrame->nb_samples);
+        {
+          std::lock_guard<std::mutex> lock(audioQueue.mutex);
+          audioQueue.packets.push(std::move(buffer));
+        }
 
         av_frame_unref(adecFrame);
       }
@@ -137,6 +221,7 @@ int main(int argc, char *argv[]) {
   myDecoder.free(deCtx);
   myDecoder.free(adeCtx);
   myDemuxer.close(FormatCtx);
+  SDL_Quit();
 
   std::cout << "Decoding Done " << "\n" << std::endl;
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
