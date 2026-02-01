@@ -60,7 +60,11 @@
 
 #### 2.linesize
 
-详情见 [Image Stride](https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride)
+详情见 [Image Stride](https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride)。
+
+首先需要知道，窗口中的图像是由GPU一行行地读取图像文件然后绘制出来的，那么GPU每行应该读取多少个字节呢？以YUV420P、8位深的Y平面数据为例，你可能会想当然地认为，既然每个像素的Y值都要采样，那么自然每行应该读取的字节数就是每一行的像素数，也就是图像的width，然后你就看到了如下图像：
+
+[！[渲染错误的图像]（https://huaban.com/pins/7018042457）]
 
 #### 3.位深，10bit与8bit有何不同，如何处理？什么是归一化？
 
