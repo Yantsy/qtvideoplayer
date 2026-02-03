@@ -1,5 +1,6 @@
 #include "glwidget.h"
 #include <iostream>
+#include <thread>
 
 MyGLWidget::MyGLWidget(QWidget *parent) noexcept : QOpenGLWidget(parent) {
   this->setContentsMargins(0, 0, 0, 0);
@@ -22,9 +23,14 @@ MyGLWidget::~MyGLWidget() {
   delete m_textureU;
   delete m_textureV;
   doneCurrent();
-  std::cout << "PaintCount: " << paintCount << "\n";
-  std::cout << "RenderCount: " << renderCount << "\n" << std::endl;
-  std::cout << "至是工程已毕，于斯合题\n" << std::endl;
+  // std::cout << "PaintCount: " << paintCount << "\n";
+  // std::cout << "RenderCount: " << renderCount << "\n" << std::endl;
+  auto end = {"至", "是", "工", "程", "已", "毕", "，", "于", "斯", "合", "题"};
+  for (const auto &e : end) {
+    std::cout << e << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+  std::cout << "\n";
 }
 
 void MyGLWidget::renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w,

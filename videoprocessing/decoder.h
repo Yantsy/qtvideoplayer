@@ -15,7 +15,7 @@ public:
   auto findPxFmt(const AVCodecContext *pcdCtx) noexcept {
     const auto *ppixFmt = av_get_pix_fmt_name(pcdCtx->pix_fmt);
     if (ppixFmt == nullptr) {
-      std::cout << "Can't find supported pixel format\n" << std::endl;
+      std::cerr << "Can't find supported pixel format\n" << std::endl;
       // exit(-1);
     }
     std::cout << "Pixel format:" << ppixFmt << "\n" << std::endl;
@@ -25,7 +25,7 @@ public:
     const auto *psprFmt = av_get_sample_fmt_name(pcdCtx->sample_fmt);
     auto a = pcdCtx->sample_fmt;
     if (psprFmt == nullptr) {
-      std::cout << "Can't find supported sample format\n" << std::endl;
+      std::cerr << "Can't find supported sample format\n" << std::endl;
       // exit(-1);
     }
     std::cout << "Sample format:" << psprFmt << "\n" << std::endl;
@@ -41,7 +41,7 @@ public:
     const auto *psprFmt = av_get_sample_fmt_name(pcdCtx->sample_fmt);
     auto a = pcdCtx->sample_fmt;
     if (psprFmt == nullptr) {
-      std::cout << "Can't find supported sample format\n" << std::endl;
+      std::cerr << "Can't find supported sample format\n" << std::endl;
       // exit(-1);
     }
     av_channel_layout_describe(&cdcPar->ch_layout, layout_name,
@@ -72,7 +72,7 @@ public:
     const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
     const auto *pdecoder = avcodec_find_decoder(cdcPar->codec_id);
     if (pdecoder == nullptr) {
-      std::cout << "Can't find supported decoder\n" << std::endl;
+      std::cerr << "Can't find supported decoder\n" << std::endl;
       // exit(-1);
     } else {
       switch (tgt) {
@@ -97,11 +97,11 @@ public:
     // ignorance of this step makes the codec fail to find the start code,
     // and causes error splitting the input into NAL units
     if (avcodec_parameters_to_context(cdCtx, cdcPar) != 0) {
-      std::cout << "Can't copy codec parameters\n" << std::endl;
+      std::cerr << "Can't copy codec parameters\n" << std::endl;
       // exit(-1);
     }
     if (avcodec_open2(cdCtx, pdecoder, nullptr) != 0) {
-      std::cout << "Can't open codec\n" << std::endl;
+      std::cerr << "Can't open codec\n" << std::endl;
       // exit(-1);
     } else {
       std::cout << "Open codec successfully\n" << std::endl;
@@ -132,7 +132,7 @@ public:
   auto alcFrm() noexcept {
     AVFrame *frame = av_frame_alloc();
     if (frame == nullptr) {
-      std::cout << "Can't allocate frame\n" << std::endl;
+      std::cerr << "Can't allocate frame\n" << std::endl;
     } else {
       std::cout << "Allocate frame successfully\n" << std::endl;
     }
@@ -142,7 +142,7 @@ public:
   auto alcFrmBuf(AVCodecContext *pcdCtx) noexcept {
     AVFrame *pFrame = av_frame_alloc();
     if (pFrame == nullptr) {
-      std::cout << "Can't allocate frame\n" << std::endl;
+      std::cerr << "Can't allocate frame\n" << std::endl;
     } else {
       std::cout << "Allocate frame successfully\n" << std::endl;
     }
@@ -156,7 +156,7 @@ public:
   auto alcPkt() noexcept {
     AVPacket *ppkt = av_packet_alloc();
     if (ppkt == nullptr) {
-      std::cout << "Can't allocate packet\n" << std::endl;
+      std::cerr << "Can't allocate packet\n" << std::endl;
     } else {
       std::cout << "Allocate packet successfully\n" << std::endl;
     }

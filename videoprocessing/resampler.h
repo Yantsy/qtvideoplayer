@@ -14,7 +14,7 @@ public:
   }
   auto detectFmt(AVSampleFormat psprFmt, int pChannels) {
     if (psprFmt == AV_SAMPLE_FMT_NONE) {
-      std::cout << "Can't find supported sample format\n" << std::endl;
+      std::cerr << "Can't find supported sample format\n" << std::endl;
       // exit(-1);
     } else if (psprFmt == AV_SAMPLE_FMT_U8P || psprFmt == AV_SAMPLE_FMT_S16P ||
                psprFmt == AV_SAMPLE_FMT_S32P || psprFmt == AV_SAMPLE_FMT_S64P ||

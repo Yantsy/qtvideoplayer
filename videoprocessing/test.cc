@@ -2,7 +2,7 @@
 #include <QFileDialog>
 #include <QWidget>
 #include <chrono>
-#include <condition_variable>
+
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -131,9 +131,10 @@ int main(int argc, char *argv[]) {
   int lineSizeUV = 0;
   int amtPkt = 0;
   int amtFrm = 0;
-  int count = 0;
+  int count(0);
 
   while (myDecoder.axptPkt(FormatCtx, pkt)) {
+
     if (pkt->stream_index == vsIndex) {
       myDecoder.decPkt(deCtx, pkt);
       amtPkt++;
@@ -209,6 +210,7 @@ int main(int argc, char *argv[]) {
     }
     av_packet_unref(pkt);
   }
+
   // std::cout << "Pixel Format: " << pxFmt << "\n" << std::endl;
   std::cout << "Total Packets: " << amtPkt << "\n";
   std::cout << "Total Frames: " << amtFrm << "\n" << std::endl;
@@ -222,8 +224,12 @@ int main(int argc, char *argv[]) {
   myDecoder.free(adeCtx);
   myDemuxer.close(FormatCtx);
   SDL_Quit();
-
-  std::cout << "Decoding Done " << "\n" << std::endl;
+  for (int i = 0; i < 25; i++) {
+    std::cout << "\r" << std::string(i, '#') << std::string(25 - i, ' ')
+              << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+  }
+  std::cout << "\n";
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
   //  decoder.decode(demuxer.pLocalCodecParameters);
 
