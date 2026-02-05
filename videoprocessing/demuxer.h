@@ -19,19 +19,18 @@ public:
 
   auto open(const char *filename, AVFormatContext *pFormatCtx) noexcept {
     if (avformat_open_input(&pFormatCtx, filename, nullptr, nullptr) != 0) {
-      std::cout << "Can't open file\n" << std::endl;
+      std::cout << "Can't open file\n";
       return -1;
     } else {
       std::cout << "Open file success\n"
-                << "Filepath: " << filename << "\n"
-                << std::endl;
+                << "Filepath: " << filename << "\n";
     };
     return 0;
   }
 
   auto findSInfo(AVFormatContext *pFormatCtx) noexcept {
     if (avformat_find_stream_info(pFormatCtx, nullptr) != 0) {
-      std::cout << "Can't find video stream info\n" << std::endl;
+      std::cout << "Can't find video stream info\n";
       return -1;
     }
     return 0;
@@ -49,10 +48,10 @@ public:
         duration = containerDuration / 1000 / base;
       };
       if (cdcPar->codec_type == AVMEDIA_TYPE_VIDEO) {
-        std::cout << "Video Resolution:" << cdcPar->width << "x"
-                  << cdcPar->height << "\n"
-                  << "Video Duration:" << duration << "s\n"
-                  << std::endl;
+        std::cout << "Stream[" << i << "]:Video\n"
+                  << "__resolution:" << cdcPar->width << "x" << cdcPar->height
+                  << "\n"
+                  << "__duration:" << duration << "s\n";
         return i;
       }
     }
@@ -64,7 +63,7 @@ public:
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
 
       if (cdcPar->codec_type == AVMEDIA_TYPE_AUDIO) {
-
+        std::cout << "Stream[" << i << "]:Audio\n";
         return i;
       }
     }

@@ -14,7 +14,7 @@ public:
   }
   auto detectFmt(AVSampleFormat psprFmt, int pChannels) {
     if (psprFmt == AV_SAMPLE_FMT_NONE) {
-      std::cerr << "Can't find supported sample format\n" << std::endl;
+      std::cerr << "Can't find supported sample format\n";
       // exit(-1);
     } else if (psprFmt == AV_SAMPLE_FMT_U8P || psprFmt == AV_SAMPLE_FMT_S16P ||
                psprFmt == AV_SAMPLE_FMT_S32P || psprFmt == AV_SAMPLE_FMT_S64P ||
@@ -23,15 +23,15 @@ public:
       isPlannar = true;
     } else {
     }
-    std::cout << "Sample format:" << psprFmt << "\n" << std::endl;
+    std::cout << "__sample format:" << psprFmt << "\n";
     return 0;
   }
   auto plannarTpacked(uint8_t pChnllData) {
     uint8_t pPackedData;
     if (isPlannar) {
-      std::cout << "From plannar to packed success\n" << std::endl;
+      std::cout << "From plannar to packed success\n";
     } else {
-      std::cout << "No need to resample\n" << std::endl;
+      std::cout << "No need to resample\n";
     }
     return pPackedData;
   }

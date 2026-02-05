@@ -61,6 +61,8 @@ void callBack(void *puserData, uint8_t *pstream, int plen) {
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   // app.setQuitOnLastWindowClosed(true);
+
+  // define required widgets
   MyGLWidget ffmpegvideowidget;
   ffmpegvideowidget.show();
 
@@ -73,8 +75,8 @@ int main(int argc, char *argv[]) {
   MyDemuxer myDemuxer;
   MyDecoder myDecoder;
   MyResampler myResampler;
+  // open file
   const auto FormatCtx = myDemuxer.alcFmtCtx();
-
   auto filePath = QFileDialog::getOpenFileName();
   if (filePath.isEmpty()) {
     ffmpegvideowidget.close();
@@ -82,14 +84,17 @@ int main(int argc, char *argv[]) {
   }
   myDemuxer.open(filePath.toStdString().c_str(), FormatCtx);
   myDemuxer.findSInfo(FormatCtx);
-
+  // video stream
   auto vsIndex = myDemuxer.findVSInfo(FormatCtx);
-  auto asIndex = myDemuxer.findASInfo(FormatCtx);
   const auto decoder = myDecoder.findDec(FormatCtx, vsIndex, target::VIDEO);
-  const auto adecoder = myDecoder.findDec(FormatCtx, asIndex, target::AUDIO);
   const auto deCtx = myDecoder.alcCtx(decoder, FormatCtx, vsIndex);
   const auto dePxFmt = myDecoder.findPxFmt(deCtx);
   const auto dePxDpth = myDecoder.findPxDpth(dePxFmt, 1);
+  const auto decFrame = myDecoder.alcFrm();
+  const auto myFrame = myDecoder.alcFrm();
+  // audio stream
+  auto asIndex = myDemuxer.findASInfo(FormatCtx);
+  const auto adecoder = myDecoder.findDec(FormatCtx, asIndex, target::AUDIO);
   const auto adeCtx = myDecoder.alcCtx(adecoder, FormatCtx, asIndex);
   auto adeSpc = myDecoder.findASInfo(FormatCtx, adeCtx, asIndex);
   adeSpc.callback = callBack;
@@ -108,11 +113,10 @@ int main(int argc, char *argv[]) {
       &swrCtx, &channelLayout, myResampler.fmtNameTrans2(adeCtx->sample_fmt),
       adeSpc.freq, &channelLayout, adeCtx->sample_fmt, adeSpc.freq, 0, nullptr);
   swr_init(swrCtx);
-  const auto decFrame = myDecoder.alcFrm();
   const auto adecFrame = myDecoder.alcFrm();
-  const auto myFrame = myDecoder.alcFrm();
   const auto amyFrame = myDecoder.alcFrm();
   const auto pkt = myDecoder.alcPkt();
+  // initialize parameters required for decoding
   double timeBase = av_q2d(FormatCtx->streams[vsIndex]->time_base);
   double atimeBase = av_q2d(FormatCtx->streams[asIndex]->time_base);
   auto startTime = std::chrono::steady_clock::now();
@@ -213,7 +217,7 @@ int main(int argc, char *argv[]) {
 
   // std::cout << "Pixel Format: " << pxFmt << "\n" << std::endl;
   std::cout << "Total Packets: " << amtPkt << "\n";
-  std::cout << "Total Frames: " << amtFrm << "\n" << std::endl;
+  std::cout << "Total Frames: " << amtFrm << "\n";
 
   myDecoder.free(pkt);
   myDecoder.free(decFrame);
