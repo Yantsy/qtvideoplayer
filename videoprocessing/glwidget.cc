@@ -25,8 +25,8 @@ MyGLWidget::~MyGLWidget() {
   doneCurrent();
   // std::cout << "PaintCount: " << paintCount << "\n";
   // std::cout << "RenderCount: " << renderCount << "\n" << std::endl;
-  auto end = {"至", "是", "工", "程", "已", "毕", "，", "于", "斯", "合", "题"};
-  for (const auto &e : end) {
+  for (const auto &e :
+       {"至", "是", "工", "程", "已", "毕", "，", "于", "斯", "合", "题"}) {
     std::cout << e << std::flush;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }

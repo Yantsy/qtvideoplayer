@@ -228,12 +228,6 @@ int main(int argc, char *argv[]) {
   myDecoder.free(adeCtx);
   myDemuxer.close(FormatCtx);
   SDL_Quit();
-  for (int i = 0; i < 25; i++) {
-    std::cout << "\r" << std::string(i, '#') << std::string(25 - i, ' ')
-              << std::flush;
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
-  }
-  std::cout << "\n";
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
   //  decoder.decode(demuxer.pLocalCodecParameters);
 

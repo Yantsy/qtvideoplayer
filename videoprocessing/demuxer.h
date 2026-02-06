@@ -12,7 +12,6 @@ extern "C" {
 class MyDemuxer {
 public:
   auto alcFmtCtx() noexcept {
-  std:
     AVFormatContext *pFormatCtx = avformat_alloc_context();
     return pFormatCtx;
   }

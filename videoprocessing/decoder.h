@@ -67,7 +67,7 @@ public:
     return pSpec;
   }
   auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex,
-               uint8_t tgt) noexcept {
+               const uint8_t tgt) noexcept {
     const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
     const auto *pdecoder = avcodec_find_decoder(cdcPar->codec_id);
     if (pdecoder == nullptr) {
