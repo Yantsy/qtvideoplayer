@@ -104,7 +104,9 @@
 
 为了看懂该报错，我们需要了解纹理是如何被读取，创建和存储的。
 
-#### 2.未将纹理mapping between the cpu memory and gpu memory导致paintGL崩溃
+### SDL音频处理
+
+
 
 
 

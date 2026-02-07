@@ -52,7 +52,7 @@ void callBack(void *puserData, uint8_t *pstream, int plen) {
 
     SDL_MixAudioFormat(
         out, audioState->currentBuffer.data() + audioState->currentIndex,
-        AUDIO_F32, tocopy, SDL_MIX_MAXVOLUME);
+        AUDIO_S32, tocopy, SDL_MIX_MAXVOLUME);
     audioState->currentIndex += tocopy;
     out += tocopy;
     remaining -= tocopy;
@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
   ffmpegvideowidget.show();
 
   MyAudioWidget audioWidget;
+
   audioWidget.init();
 
   AudioState audioState = {nullptr, 0, 0};
@@ -192,17 +193,19 @@ int main(int argc, char *argv[]) {
       myDecoder.decPkt(adeCtx, pkt);
       while (myDecoder.rcvFrm(adeCtx, adecFrame)) {
         myDecoder.cpyFrm(adecFrame, amyFrame);
-        /*
-        int outBufferSize = av_samples_get_buffer_size(NULL, adeSpc.channels,
-                                                       adecFrame->nb_samples,
-                                                       adeCtx->sample_fmt, 1);*/
-        // uint8_t *outBuffer = (uint8_t *)av_malloc(outBufferSize);
-        int outSamples = adecFrame->nb_samples;
-        int outBufferSize = outSamples * 2 * sizeof(float);
+        int outSamples =
+            adecFrame         // 一次解码出的音频片段
+                ->nb_samples; // 一个声道一次填入缓冲区的样本数，用来控制音频采样的延迟
+        int outBufferSize = outSamples * 2 * sizeof(int32_t); // 缓冲区大小
         std::vector<uint8_t> buffer(outBufferSize);
         uint8_t *bufPtr = buffer.data();
+        const auto data = adecFrame->data;
+        buffer.assign(data[0], data[0] + outBufferSize);
+
+        // 将in的数据根据swrCtx转换格式后存储到out的内存区域
+        /*
         swr_convert(swrCtx, &bufPtr, outSamples,
-                    (const uint8_t **)adecFrame->data, adecFrame->nb_samples);
+                    (const uint8_t **)adecFrame->data, adecFrame->nb_samples);*/
         {
           std::lock_guard<std::mutex> lock(audioQueue.mutex);
           audioQueue.packets.push(std::move(buffer));

@@ -62,7 +62,7 @@ public:
     pSpec.freq = cdcPar->sample_rate;
     pSpec.format = pResampler.fmtNameTrans(pcdCtx->sample_fmt);
     pSpec.channels = cdcPar->ch_layout.nb_channels;
-    pSpec.samples = 1024;
+    pSpec.samples = 2048;
     pSpec.silence = 0;
     return pSpec;
   }
