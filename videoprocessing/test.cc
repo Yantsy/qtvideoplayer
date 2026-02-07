@@ -198,14 +198,15 @@ int main(int argc, char *argv[]) {
                 ->nb_samples; // 一个声道一次填入缓冲区的样本数，用来控制音频采样的延迟
         int outBufferSize = outSamples * 2 * sizeof(int32_t); // 缓冲区大小
         std::vector<uint8_t> buffer(outBufferSize);
-        uint8_t *bufPtr = buffer.data();
         const auto data = adecFrame->data;
-        buffer.assign(data[0], data[0] + outBufferSize);
-
-        // 将in的数据根据swrCtx转换格式后存储到out的内存区域
-        /*
-        swr_convert(swrCtx, &bufPtr, outSamples,
-                    (const uint8_t **)adecFrame->data, adecFrame->nb_samples);*/
+        // 判断是否是plannar数据，如果data[1]为空，肯定不是，否则需要转packed数据
+        if (data[1] == nullptr) {
+          buffer.assign(data[0], data[0] + outBufferSize);
+        } else {
+          uint8_t *bufPtr = buffer.data();
+          swr_convert(swrCtx, &bufPtr, outSamples,
+                      (const uint8_t **)adecFrame->data, adecFrame->nb_samples);
+        }
         {
           std::lock_guard<std::mutex> lock(audioQueue.mutex);
           audioQueue.packets.push(std::move(buffer));

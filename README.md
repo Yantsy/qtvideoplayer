@@ -106,6 +106,9 @@
 
 ### SDL音频处理
 
+#### audioQueue与callback函数
+
+SDL处理音频的机制大概相当于，你给它音频参数，如每次callback的样本数，采样频率，采样格式，callback函数和pcm数据，那么它就会驱动声卡。
 
 
 
