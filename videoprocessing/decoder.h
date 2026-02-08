@@ -44,6 +44,7 @@ public:
       std::cerr << "Can't find supported sample format\n";
       // exit(-1);
     }
+    auto b = cdcPar->ch_layout;
     av_channel_layout_describe(&cdcPar->ch_layout, layout_name,
                                sizeof(layout_name));
     auto containerDuration = (float)pFormatCtx->duration;

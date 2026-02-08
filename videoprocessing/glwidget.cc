@@ -224,7 +224,7 @@ void MyGLWidget::initializeGL() {
   FragColor= vec4(r,g,b,1.0);})";
 
   initializeOpenGLFunctions();
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.06275f, 0.06275f, 0.06275f, 1.0f);
   m_vao0 = new QOpenGLVertexArrayObject(this);
   m_vao0->create();
   m_vao0->bind();

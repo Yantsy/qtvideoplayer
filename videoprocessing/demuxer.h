@@ -74,7 +74,7 @@ public:
     return 0;
   }
 
-  auto close(AVCodecContext *pCodecContext) noexcept {
+  auto free(AVCodecContext *pCodecContext) noexcept {
     avcodec_free_context(&pCodecContext);
     return 0;
   }

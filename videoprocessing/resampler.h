@@ -8,8 +8,12 @@ extern "C" {
 
 class MyResampler {
 public:
-  auto alcSwrCtx() noexcept {
+  auto alcSwrCtx(AVChannelLayout pChnlLyt, const int pFreq,
+                 AVSampleFormat pinFmt, AVSampleFormat pOutFmt) noexcept {
     auto pSwrCtx = swr_alloc();
+    swr_alloc_set_opts2(&pSwrCtx, &pChnlLyt, pOutFmt, pFreq, &pChnlLyt, pinFmt,
+                        pFreq, 0, nullptr);
+    swr_init(pSwrCtx);
     return pSwrCtx;
   }
   auto detectFmt(AVSampleFormat psprFmt, int pChannels) {
@@ -78,6 +82,8 @@ public:
       return AV_SAMPLE_FMT_FLT;
     }
   }
+
+  auto free(SwrContext *pSwrCtx) noexcept { swr_free(&pSwrCtx); }
 
 private:
   bool isPlannar = false;

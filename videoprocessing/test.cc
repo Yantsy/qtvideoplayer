@@ -17,13 +17,8 @@ extern "C" {
 #include "demuxer.h"
 #include "glwidget.h"
 
-typedef struct {
-  uint8_t *audio_buf;
-  unsigned int audio_buf_size;
-  unsigned int audio_buf_index;
-} AudioState;
-
 struct AudioQueue {
+  SDL_AudioFormat format;
   std::queue<std::vector<uint8_t>> packets;
   std::mutex mutex;
   size_t currentIndex = 0;
@@ -52,7 +47,7 @@ void callBack(void *puserData, uint8_t *pstream, int plen) {
 
     SDL_MixAudioFormat(
         out, audioState->currentBuffer.data() + audioState->currentIndex,
-        AUDIO_S32, tocopy, SDL_MIX_MAXVOLUME);
+        audioState->format, tocopy, SDL_MIX_MAXVOLUME);
     audioState->currentIndex += tocopy;
     out += tocopy;
     remaining -= tocopy;
@@ -70,7 +65,6 @@ int main(int argc, char *argv[]) {
 
   audioWidget.init();
 
-  AudioState audioState = {nullptr, 0, 0};
   AudioQueue audioQueue;
   // Demuxer demuxer;
   MyDemuxer myDemuxer;
@@ -98,8 +92,11 @@ int main(int argc, char *argv[]) {
   const auto adecoder = myDecoder.findDec(FormatCtx, asIndex, target::AUDIO);
   const auto adeCtx = myDecoder.alcCtx(adecoder, FormatCtx, asIndex);
   auto adeSpc = myDecoder.findASInfo(FormatCtx, adeCtx, asIndex);
+  const auto chnlLyt = FormatCtx->streams[asIndex]->codecpar->ch_layout;
+  const auto channels = chnlLyt.nb_channels;
   adeSpc.callback = callBack;
   adeSpc.userdata = &audioQueue;
+  audioQueue.format = adeSpc.format;
   auto obtSpc = SDL_AudioSpec();
   SDL_AudioDeviceID audioDevice =
       SDL_OpenAudioDevice(NULL, 0, &adeSpc, &obtSpc, 0);
@@ -107,13 +104,10 @@ int main(int argc, char *argv[]) {
     SDL_Quit();
     return -1;
   }
+  const auto reSprFmt = myResampler.fmtNameTrans2(adeCtx->sample_fmt);
   SDL_PauseAudioDevice(audioDevice, 0);
-  SwrContext *swrCtx = swr_alloc();
-  AVChannelLayout channelLayout = AV_CHANNEL_LAYOUT_STEREO;
-  swr_alloc_set_opts2(
-      &swrCtx, &channelLayout, myResampler.fmtNameTrans2(adeCtx->sample_fmt),
-      adeSpc.freq, &channelLayout, adeCtx->sample_fmt, adeSpc.freq, 0, nullptr);
-  swr_init(swrCtx);
+  auto adecSwrCtx =
+      myResampler.alcSwrCtx(chnlLyt, adeSpc.freq, adeCtx->sample_fmt, reSprFmt);
   const auto adecFrame = myDecoder.alcFrm();
   const auto amyFrame = myDecoder.alcFrm();
   const auto pkt = myDecoder.alcPkt();
@@ -196,7 +190,8 @@ int main(int argc, char *argv[]) {
         int outSamples =
             adecFrame         // 一次解码出的音频片段
                 ->nb_samples; // 一个声道一次填入缓冲区的样本数，用来控制音频采样的延迟
-        int outBufferSize = outSamples * 2 * sizeof(int32_t); // 缓冲区大小
+        int outBufferSize = audioWidget.buffer(channels, outSamples,
+                                               reSprFmt); // 缓冲区大小
         std::vector<uint8_t> buffer(outBufferSize);
         const auto data = adecFrame->data;
         // 判断是否是plannar数据，如果data[1]为空，肯定不是，否则需要转packed数据
@@ -204,7 +199,7 @@ int main(int argc, char *argv[]) {
           buffer.assign(data[0], data[0] + outBufferSize);
         } else {
           uint8_t *bufPtr = buffer.data();
-          swr_convert(swrCtx, &bufPtr, outSamples,
+          swr_convert(adecSwrCtx, &bufPtr, outSamples,
                       (const uint8_t **)adecFrame->data, adecFrame->nb_samples);
         }
         {
@@ -230,6 +225,7 @@ int main(int argc, char *argv[]) {
   myDecoder.free(amyFrame);
   myDecoder.free(deCtx);
   myDecoder.free(adeCtx);
+  myResampler.free(adecSwrCtx);
   myDemuxer.close(FormatCtx);
   SDL_Quit();
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
