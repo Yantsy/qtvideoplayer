@@ -59,4 +59,6 @@ private:
   QMatrix4x4 transformMatrix(float ww, float wh, float iw, float ih);
   QMatrix4x4 transformMatrix2(float ww, float wh, float iw, float ih);
   QElapsedTimer *timer = nullptr;
+
+private slots:
 };
