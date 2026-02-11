@@ -33,9 +33,9 @@ MyGLWidget::~MyGLWidget() {
   std::cout << "\n";
 }
 
-void MyGLWidget::renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
-                                   int h, int strideY, int strideUV,
-                                   char ppxFmt) noexcept {
+void MyGLWidget::renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int &w,
+                                   int &h, int &strideY, int &strideUV,
+                                   const char &ppxFmt) noexcept {
   // isTenbit = false;
   renderCount = renderCount + 1;
   imageWidth = w;
@@ -109,9 +109,9 @@ void MyGLWidget::renderWithOpenGL8(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
   repaint();
   // 使用 repaint() 强制立即重绘，而不是 update()
 }
-void MyGLWidget::renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int w,
-                                    int h, int strideY, int strideUV,
-                                    char ppxFmt) noexcept {
+void MyGLWidget::renderWithOpenGL10(uint8_t *Y, uint8_t *U, uint8_t *V, int &w,
+                                    int &h, int &strideY, int &strideUV,
+                                    const char &ppxFmt) noexcept {
   isTenbit = true;
   renderCount = renderCount + 1;
   imageWidth = w;

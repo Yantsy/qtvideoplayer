@@ -9,13 +9,14 @@ extern "C" {
 
 class MyAudioWidget {
 public:
-  auto init() {
+  MyAudioWidget() {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
       std::cerr << "Can't init SDL\n";
     }
     std::cout << "Init SDL_Audio success\n";
-    return 0;
   };
+
+  ~MyAudioWidget() { SDL_Quit(); };
   auto open(SDL_AudioSpec *pwanted, SDL_AudioSpec *pobtained) {
     if (SDL_OpenAudio(pwanted, pobtained) < 0) {
       std::cerr << "Can't open audio\n";
@@ -24,11 +25,9 @@ public:
     std::cout << "Open audio success\n";
     return 0;
   };
-  auto pause();
+
   auto callBack(void *puserData, Uint8 *pstream, int plen) {
-    SDL_AudioCallback paudioCallback;
-    paudioCallback(puserData, pstream, plen);
-    return paudioCallback;
+
   };
   auto buffer(int pchannels, int psamples, AVSampleFormat psprFmt) {
     auto pBufSize = psamples * pchannels;
@@ -48,5 +47,6 @@ public:
     }
     return pBufSize;
   };
-  auto close();
+
+  auto bufferManage(Uint8 *pstream, int plen) {}
 };

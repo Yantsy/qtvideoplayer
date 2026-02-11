@@ -12,7 +12,7 @@ extern "C" {
 #include "target.h"
 class MyDecoder {
 public:
-  auto findPxFmt(const AVCodecContext *pcdCtx) noexcept {
+  auto findPxFmt(const AVCodecContext *pcdCtx) const noexcept {
     const auto *ppixFmt = av_get_pix_fmt_name(pcdCtx->pix_fmt);
     if (ppixFmt == nullptr) {
       std::cerr << "Can't find supported pixel format\n";
@@ -21,7 +21,7 @@ public:
     std::cout << "__pixel format:" << ppixFmt << "\n";
     return pcdCtx->pix_fmt;
   }
-  auto findSprFmt(const AVCodecContext *pcdCtx) noexcept {
+  auto findSprFmt(const AVCodecContext *pcdCtx) const noexcept {
     const auto *psprFmt = av_get_sample_fmt_name(pcdCtx->sample_fmt);
     auto a = pcdCtx->sample_fmt;
     if (psprFmt == nullptr) {
@@ -33,7 +33,7 @@ public:
   }
   auto findASInfo(const AVFormatContext *pFormatCtx,
                   const AVCodecContext *pcdCtx,
-                  const int pastreamIndex) noexcept {
+                  const int &pastreamIndex) const noexcept {
     SDL_AudioSpec pSpec;
     MyResampler pResampler;
     const auto cdcPar = pFormatCtx->streams[pastreamIndex]->codecpar;
@@ -67,8 +67,8 @@ public:
     pSpec.silence = 0;
     return pSpec;
   }
-  auto findDec(AVFormatContext *pFormatCtx, const int pstreamIndex,
-               const uint8_t tgt) noexcept {
+  auto findDec(AVFormatContext *pFormatCtx, const int &pstreamIndex,
+               const uint8_t &tgt) const noexcept {
     const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
     const auto *pdecoder = avcodec_find_decoder(cdcPar->codec_id);
     if (pdecoder == nullptr) {
@@ -90,7 +90,7 @@ public:
   }
 
   auto alcCtx(const AVCodec *pdecoder, const AVFormatContext *pFormatCtx,
-              const int pstreamIndex) noexcept {
+              const int &pstreamIndex) const noexcept {
     AVCodecContext *cdCtx = avcodec_alloc_context3(pdecoder);
     const auto cdcPar = pFormatCtx->streams[pstreamIndex]->codecpar;
     // ignorance of this step makes the codec fail to find the start code,
@@ -108,26 +108,19 @@ public:
 
     return cdCtx;
   }
-  auto findPxDpth(AVPixelFormat ppixFmt, int out) noexcept {
+  auto findPxDpth(const AVPixelFormat &ppixFmt, const int &out) const noexcept {
     // AVPixFmtDescriptor:Descriptor that unambiguously describes how the bits
     // of a pixel are stored in the up to 4 data planes of an image.
     const AVPixFmtDescriptor *pDesc = av_pix_fmt_desc_get(ppixFmt);
     if (pDesc) {
       if (out == 1) {
         std::cout << "__pixel depth:" << pDesc->comp[1].depth << "\n";
-        // std::cout << "Pixel format:" << pDesc->name << "\n" << std::endl;
-        // std::cout << "Pixel flags:" << pDesc->flags << "\n" << std::endl;
       }
-      // std::cout << "Pixel log2_chroma_w and log2_chroma_h:"
-      //<< pDesc->log2_chroma_w << ":" << pDesc->log2_chroma_h << "\n"
-      //<< std::endl;
-      // comp:Parameters that describe how pixels are packed by its FourCC
-      // components
       return pDesc->comp[1].depth;
     }
     return 8;
   }
-  auto alcFrm() noexcept {
+  auto alcFrm() const noexcept {
     AVFrame *frame = av_frame_alloc();
     if (frame == nullptr) {
       std::cerr << "Can't allocate frame\n";
@@ -137,21 +130,8 @@ public:
     return frame;
   }
   // needed when you want to encode a frame while decoding
-  auto alcFrmBuf(AVCodecContext *pcdCtx) noexcept {
-    AVFrame *pFrame = av_frame_alloc();
-    if (pFrame == nullptr) {
-      std::cerr << "Can't allocate frame\n";
-    } else {
-      std::cout << "Allocate frame successfully\n";
-    }
-    pFrame->width = pcdCtx->width;
-    pFrame->height = pcdCtx->height;
-    pFrame->format = pcdCtx->pix_fmt;
-    av_frame_get_buffer(pFrame, 32);
-    return pFrame;
-  }
 
-  auto alcPkt() noexcept {
+  auto alcPkt() const noexcept {
     AVPacket *ppkt = av_packet_alloc();
     if (ppkt == nullptr) {
       std::cerr << "Can't allocate packet\n";
@@ -161,34 +141,34 @@ public:
     return ppkt;
   }
 
-  bool axptPkt(AVFormatContext *pFormatCtx, AVPacket *ppkt) noexcept {
+  bool axptPkt(AVFormatContext *pFormatCtx, AVPacket *ppkt) const noexcept {
     return av_read_frame(pFormatCtx, ppkt) >= 0;
   }
 
-  auto decPkt(AVCodecContext *pcdCtx, AVPacket *ppkt) noexcept {
+  auto decPkt(AVCodecContext *pcdCtx, AVPacket *ppkt) const noexcept {
     avcodec_send_packet(pcdCtx, ppkt);
     av_packet_unref(ppkt);
   }
 
-  bool rcvFrm(AVCodecContext *pcdCtx, AVFrame *pdecFrame) noexcept {
+  bool rcvFrm(AVCodecContext *pcdCtx, AVFrame *pdecFrame) const noexcept {
     return avcodec_receive_frame(pcdCtx, pdecFrame) >= 0;
   }
 
-  auto cpyFrm(AVFrame *pdecFrame, AVFrame *pmyFrame) {
+  auto cpyFrm(AVFrame *pdecFrame, AVFrame *pmyFrame) const noexcept {
     av_frame_ref(pmyFrame, pdecFrame);
     // av_frame_unref(decFrame);
   };
-  auto free(AVCodecContext *pcdCtx) noexcept {
+  auto free(AVCodecContext *pcdCtx) const noexcept {
     avcodec_free_context(&pcdCtx);
     return 0;
   }
 
-  auto free(AVFrame *pFrame) noexcept {
+  auto free(AVFrame *pFrame) const noexcept {
     av_frame_free(&pFrame);
     return 0;
   }
 
-  auto free(AVPacket *ppkt) noexcept {
+  auto free(AVPacket *ppkt) const noexcept {
     av_packet_free(&ppkt);
     return 0;
   }

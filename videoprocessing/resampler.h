@@ -8,15 +8,16 @@ extern "C" {
 
 class MyResampler {
 public:
-  auto alcSwrCtx(AVChannelLayout pChnlLyt, const int pFreq,
-                 AVSampleFormat pinFmt, AVSampleFormat pOutFmt) noexcept {
+  auto alcSwrCtx(const AVChannelLayout &pChnlLyt, const int &pFreq,
+                 AVSampleFormat &pinFmt,
+                 const AVSampleFormat &pOutFmt) const noexcept {
     auto pSwrCtx = swr_alloc();
     swr_alloc_set_opts2(&pSwrCtx, &pChnlLyt, pOutFmt, pFreq, &pChnlLyt, pinFmt,
                         pFreq, 0, nullptr);
     swr_init(pSwrCtx);
     return pSwrCtx;
   }
-  auto detectFmt(AVSampleFormat psprFmt, int pChannels) {
+  auto detectFmt(AVSampleFormat &psprFmt, int &pChannels) {
     if (psprFmt == AV_SAMPLE_FMT_NONE) {
       std::cerr << "Can't find supported sample format\n";
       // exit(-1);
@@ -40,7 +41,7 @@ public:
     return pPackedData;
   }
 
-  auto fmtNameTrans(AVSampleFormat psprFmt) {
+  auto fmtNameTrans(const AVSampleFormat &psprFmt) const noexcept {
     switch (psprFmt) {
     case AV_SAMPLE_FMT_U8: {
       return AUDIO_U8;
@@ -66,7 +67,7 @@ public:
     }
   }
 
-  auto fmtNameTrans2(AVSampleFormat psprFmt) {
+  auto fmtNameTrans2(const AVSampleFormat &psprFmt) const noexcept {
     switch (psprFmt) {
     case AV_SAMPLE_FMT_U8P: {
       return AV_SAMPLE_FMT_U8;
@@ -83,7 +84,7 @@ public:
     }
   }
 
-  auto free(SwrContext *pSwrCtx) noexcept { swr_free(&pSwrCtx); }
+  auto free(SwrContext *pSwrCtx) const noexcept { swr_free(&pSwrCtx); }
 
 private:
   bool isPlannar = false;

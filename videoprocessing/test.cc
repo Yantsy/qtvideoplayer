@@ -63,8 +63,6 @@ int main(int argc, char *argv[]) {
 
   MyAudioWidget audioWidget;
 
-  audioWidget.init();
-
   AudioQueue audioQueue;
   // Demuxer demuxer;
   MyDemuxer myDemuxer;
@@ -227,7 +225,6 @@ int main(int argc, char *argv[]) {
   myDecoder.free(adeCtx);
   myResampler.free(adecSwrCtx);
   myDemuxer.close(FormatCtx);
-  SDL_Quit();
   // demuxer.demux("/home/yantsy/Documents/videoplayer/resources/c.mp4");
   //  decoder.decode(demuxer.pLocalCodecParameters);
 

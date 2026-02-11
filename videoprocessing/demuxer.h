@@ -16,7 +16,8 @@ public:
     return pFormatCtx;
   }
 
-  auto open(const char *filename, AVFormatContext *pFormatCtx) noexcept {
+  auto open(const char *filename, AVFormatContext *pFormatCtx) const noexcept {
+
     if (avformat_open_input(&pFormatCtx, filename, nullptr, nullptr) != 0) {
       std::cout << "Can't open file\n";
       return -1;
@@ -27,7 +28,7 @@ public:
     return 0;
   }
 
-  auto findSInfo(AVFormatContext *pFormatCtx) noexcept {
+  auto findSInfo(AVFormatContext *pFormatCtx) const noexcept {
     if (avformat_find_stream_info(pFormatCtx, nullptr) != 0) {
       std::cout << "Can't find video stream info\n";
       return -1;
@@ -35,7 +36,7 @@ public:
     return 0;
   }
 
-  auto findVSInfo(AVFormatContext *pFormatCtx) noexcept {
+  auto findVSInfo(AVFormatContext *pFormatCtx) const noexcept {
 
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
@@ -56,7 +57,7 @@ public:
     }
     return 0;
   }
-  auto findASInfo(AVFormatContext *pFormatCtx) noexcept {
+  auto findASInfo(AVFormatContext *pFormatCtx) const noexcept {
 
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
       const auto cdcPar = pFormatCtx->streams[i]->codecpar;
