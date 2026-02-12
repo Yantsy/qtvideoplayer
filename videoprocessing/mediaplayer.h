@@ -3,58 +3,25 @@
 #include <chrono>
 #include <memory>
 
-#include <mutex>
-#include <queue>
 #include <thread>
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavutil/avutil.h>
-#include <libavutil/channel_layout.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/pixdesc.h>
-#include <libavutil/samplefmt.h>
-#include <libswresample/swresample.h>
-}
 
 #include "audiowidget.h"
+#include "decoder.h"
 #include "glwidget.h"
-#include "resampler.h"
+#include "public.h"
 // resource management
-template <typename T> struct CtxFree;
-template <> struct CtxFree<AVFormatContext> {
-  auto operator()(AVFormatContext *ctx) const noexcept {
-    avformat_close_input(&ctx);
-  };
-};
-template <> struct CtxFree<AVCodecContext> {
-  auto operator()(AVCodecContext *ctx) const noexcept {
-    avcodec_free_context(&ctx);
-  }
-};
-template <> struct CtxFree<SwrContext> {
-  auto operator()(SwrContext *ctx) const noexcept { swr_free(&ctx); }
-};
-template <> struct CtxFree<AVFrame> {
-  auto operator()(AVFrame *ctx) const noexcept { av_frame_free(&ctx); }
-};
-template <> struct CtxFree<AVPacket> {
-  auto operator()(AVPacket *ctx) const noexcept { av_packet_free(&ctx); }
-};
-class MediaPlayer {
-  int a = 0;
 
-public:
-  MediaPlayer() {
-    MyResampler myResampler;
-    MyGLWidget videowidget;
-    MyAudioWidget audioWidget;
-    audioQueue.format = myResampler.fmtNameTrans(mediaInfo.sampleFmt);
-  };
-  ~MediaPlayer() {};
+class MediaPlayer {
+private:
+  // media
+  MediaInfo mediaInfo;
+  PtrSet ptrSet;
+  MyResampler myResampler;
+  MyGLWidget videowidget;
+  MyAudioWidget audioWidget;
 
   auto openFile(const char *pfilePath) {
-    AVFormatContext *pFormatCtx = avformat_alloc_context();
+    auto pFormatCtx = avformat_alloc_context();
     if (avformat_open_input(&pFormatCtx, pfilePath, nullptr, nullptr) != 0) {
       std::cerr << "Can't open file\n" << std::flush;
     }
@@ -83,9 +50,11 @@ public:
         mediaInfo.splFmtName =
             const_cast<char *>(av_get_sample_fmt_name(mediaInfo.sampleFmt));
         mediaInfo.splRate = (float)cdcPar->sample_rate / 1000;
+        mediaInfo.channelLayout = cdcPar->ch_layout;
         mediaInfo.channels = cdcPar->ch_layout.nb_channels;
-        av_channel_layout_describe(&cdcPar->ch_layout, mediaInfo.channelLayout,
-                                   sizeof(mediaInfo.channelLayout));
+        av_channel_layout_describe(&cdcPar->ch_layout,
+                                   mediaInfo.channelLayoutName,
+                                   sizeof(mediaInfo.channelLayoutName));
 
       } else if (cdcPar->codec_type == AVMEDIA_TYPE_VIDEO) {
         ptrSet.videoDecCtx.reset(avcodec_alloc_context3(decoder));
@@ -117,84 +86,104 @@ public:
     ptrSet.paket.reset(av_packet_alloc());
   };
 
-private:
-  // media
-  struct MediaInfo {
-    char *filePath;
-    int vsIndex;
-    char *vdecoderName;
-    int resolution[2];
-    double vtimeBase;
-    float vduration;
-    AVPixelFormat pxFmt;
-    char *pxFmtName;
-    int pxFmtDpth;
-    int asIndex;
-    char *adecoderName;
-    double atimeBase;
-    int samples;
-    int silence;
-    int splRate;
-    float aduration;
-    AVSampleFormat sampleFmt;
-    char *splFmtName;
-    int channels;
-    char channelLayout[64];
-    int ssIndex;
-  } mediaInfo;
+  const auto outputInfo() const noexcept {};
 
-  struct PtrSet {
-    std::unique_ptr<AVFormatContext, CtxFree<AVFormatContext>> formatCtx =
-        nullptr;
-    std::unique_ptr<AVCodecContext, CtxFree<AVCodecContext>> videoDecCtx =
-        nullptr;
-    std::unique_ptr<AVCodecContext, CtxFree<AVCodecContext>> audioDecCtx =
-        nullptr;
-    std::unique_ptr<SwrContext, CtxFree<SwrContext>> videoRsplCtx = nullptr;
-    std::unique_ptr<SwrContext, CtxFree<SwrContext>> audioRsplCtx = nullptr;
-    std::unique_ptr<AVPacket, CtxFree<AVPacket>> paket = nullptr;
-    std::unique_ptr<AVFrame, CtxFree<AVFrame>> vdecFrm = nullptr;
-    std::unique_ptr<AVFrame, CtxFree<AVFrame>> vmyFrm = nullptr;
-    std::unique_ptr<AVFrame, CtxFree<AVFrame>> adecFrm = nullptr;
-    std::unique_ptr<AVFrame, CtxFree<AVFrame>> amyFrm = nullptr;
-  } ptrSet;
+  auto decodeLoop(MediaInfo &pmediaInfo, PtrSet &pptrSet) {
+    MyDecoder myDecoder;
+    while (myDecoder.axptPkt(ptrSet.formatCtx.get(), ptrSet.paket.get())) {
+      if (ptrSet.paket->stream_index == mediaInfo.vsIndex) {
+        myDecoder.decPkt(ptrSet.videoDecCtx.get(), ptrSet.paket.get());
+        while (
+            myDecoder.rcvFrm(ptrSet.videoDecCtx.get(), ptrSet.vdecFrm.get())) {
+          myDecoder.cpyFrm(ptrSet.vdecFrm.get(), ptrSet.vmyFrm.get());
+          auto startTime = std::chrono::steady_clock::now();
+          int64_t pts = ptrSet.vmyFrm->pts;
+          int64_t vfirstPts = AV_NOPTS_VALUE;
+          if (pts == AV_NOPTS_VALUE) {
+            pts = ptrSet.vmyFrm->best_effort_timestamp;
+          }
+          if (vfirstPts == AV_NOPTS_VALUE) {
+            vfirstPts = pts;
+          }
+          double frameTimeSeconds = (pts - vfirstPts) * mediaInfo.vtimeBase;
+          auto yPlane = ptrSet.vmyFrm->data[0];
+          auto uPlane = ptrSet.vmyFrm->data[1];
+          auto vPlane = ptrSet.vmyFrm->data[2];
+          // myFrame->format = deCtx->pix_fmt;
 
-  const auto getInfo(AVFormatContext *pFormatCtx,
-                     AVCodecContext *pCodecCtx) noexcept {};
-  struct AudioQueue {
-    SDL_AudioFormat format;
-    std::queue<std::vector<uint8_t>> packets;
-    std::mutex mutex;
-    size_t currentIndex = 0;
-    std::vector<uint8_t> currentBuffer;
-  } audioQueue;
-  void callBack(void *puserData, uint8_t *pstream, int plen) {
-    auto *audioState = static_cast<AudioQueue *>(puserData);
-    SDL_memset(pstream, 0, plen);
+          auto frmWidth = ptrSet.vmyFrm->width;
+          auto frmHeight = ptrSet.vmyFrm->height;
+          auto lineSize0 = ptrSet.vmyFrm->linesize[0];
+          auto lineSize1 = ptrSet.vmyFrm->linesize[1];
+          if (mediaInfo.pxFmtDpth == 8) {
+            videowidget.renderWithOpenGL8(yPlane, uPlane, vPlane, frmWidth,
+                                          frmHeight, lineSize0, lineSize1,
+                                          mediaInfo.pxFmt);
+          } else if (mediaInfo.pxFmtDpth == 10) {
+            videowidget.renderWithOpenGL10(yPlane, uPlane, vPlane, frmWidth,
+                                           frmHeight, lineSize0, lineSize1,
+                                           mediaInfo.pxFmt);
+          }
 
-    int remaining = plen;
-    uint8_t *out = pstream;
+          auto now = std::chrono::steady_clock::now();
+          double elapsed =
+              std::chrono::duration<double>(now - startTime).count();
 
-    std::lock_guard<std::mutex> lock(audioState->mutex);
-    while (remaining > 0) {
-      if (audioState->currentIndex >= audioState->currentBuffer.size()) {
-        if (audioState->packets.empty()) {
-          return;
+          double waitTime = frameTimeSeconds - elapsed;
+          if (waitTime > 0) {
+            std::this_thread::sleep_for(
+                std::chrono::duration<double>(waitTime));
+          }
+          av_frame_unref(ptrSet.vmyFrm.get());
         }
-        audioState->currentBuffer = std::move(audioState->packets.front());
-        audioState->packets.pop();
-        audioState->currentIndex = 0;
-      }
-      size_t available =
-          audioState->currentBuffer.size() - audioState->currentIndex;
-      size_t tocopy = std::min(available, (size_t)remaining);
+        av_frame_unref(ptrSet.vdecFrm.get());
+      } else if (ptrSet.paket->stream_index == mediaInfo.asIndex) {
+        myDecoder.decPkt(ptrSet.audioDecCtx.get(), ptrSet.paket.get());
+        while (
+            myDecoder.rcvFrm(ptrSet.audioDecCtx.get(), ptrSet.adecFrm.get())) {
+          myDecoder.cpyFrm(ptrSet.adecFrm.get(), ptrSet.amyFrm.get());
+          int outSamples =
+              ptrSet.amyFrm
+                  ->nb_samples; // 一个声道一次填入缓冲区的样本数，用来控制音频采样的延迟
 
-      SDL_MixAudioFormat(
-          out, audioState->currentBuffer.data() + audioState->currentIndex,
-          audioState->format, tocopy, SDL_MIX_MAXVOLUME);
-      audioState->currentIndex += tocopy;
-      out += tocopy;
-      remaining -= tocopy;
+          int outBufferSize =
+              audioWidget.buffer(mediaInfo.channels, outSamples,
+                                 mediaInfo.sampleFmt); // 缓冲区大小
+          std::vector<uint8_t> buffer(outBufferSize);
+          const auto data = ptrSet.adecFrm->data;
+          // 判断是否是plannar数据，如果data[1]为空，肯定不是，否则需要转packed数据
+          if (data[1] == nullptr) {
+            buffer.assign(data[0], data[0] + outBufferSize);
+          } else {
+            uint8_t *bufPtr = buffer.data();
+            swr_convert(ptrSet.audioRsplCtx.get(), &bufPtr, outSamples,
+                        (const uint8_t **)ptrSet.adecFrm->data,
+                        ptrSet.adecFrm->nb_samples);
+          }
+          {
+            std::lock_guard<std::mutex> lock(audioWidget.audioQueue.mutex);
+            audioWidget.audioQueue.packets.push(std::move(buffer));
+          }
+
+          av_frame_unref(ptrSet.amyFrm.get());
+        }
+        av_frame_unref(ptrSet.adecFrm.get());
+      }
     }
+  }
+
+public:
+  MediaPlayer() {
+
   };
+  ~MediaPlayer() {};
+  void open(const char *pfilePath) {
+    openFile(pfilePath);
+    audioWidget.open(mediaInfo);
+    ptrSet.audioRsplCtx.reset(
+        myResampler.alcSwrCtx(mediaInfo.channelLayout, mediaInfo.splRate,
+                              mediaInfo.sampleFmt, mediaInfo.sampleFmt));
+    outputInfo();
+    decodeLoop(mediaInfo, ptrSet);
+  }
 };

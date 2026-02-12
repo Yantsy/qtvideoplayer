@@ -9,7 +9,6 @@
 extern "C" {
 #include <libavutil/pixdesc.h>
 #include <libavutil/samplefmt.h>
-#include <libswresample/swresample.h>
 }
 
 #include "audiowidget.h"
@@ -170,7 +169,7 @@ int main(int argc, char *argv[]) {
                                                dePxFmt);
         }
 
-        QCoreApplication::processEvents();
+        // QCoreApplication::processEvents();
         auto now = std::chrono::steady_clock::now();
         double elapsed = std::chrono::duration<double>(now - startTime).count();
 
@@ -209,7 +208,6 @@ int main(int argc, char *argv[]) {
       }
       av_frame_unref(amyFrame);
     }
-    av_packet_unref(pkt);
   }
 
   // std::cout << "Pixel Format: " << pxFmt << "\n" << std::endl;

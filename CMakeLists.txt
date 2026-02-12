@@ -61,7 +61,7 @@ qt_add_executable(test
 ../videoprocessing/glwidget.cc
 ../videoprocessing/audiowidget.h
 ../videoprocessing/resampler.h
-../videoprocessing/target.h
+../videoprocessing/public.h
 )
 qt_add_resources({${PROJECT_NAME} ../resources.qrc})
 
@@ -92,6 +92,7 @@ target_link_libraries(test PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2MIXER_LIBRARIES}
 )
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-
+target_precompile_headers(test PRIVATE videoprocessing/public.h)

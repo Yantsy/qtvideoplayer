@@ -8,8 +8,8 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/imgutils.h>
 }
+#include "public.h"
 #include "resampler.h"
-#include "target.h"
 class MyDecoder {
 public:
   auto findPxFmt(const AVCodecContext *pcdCtx) const noexcept {
